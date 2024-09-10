@@ -1,7 +1,3 @@
-Sure! Here’s a starter README for your Threadio project:
-
----
-
 # **Threadio**
 
 Threadio is a modern social media application designed for real-time interactions, allowing users to create and engage with posts, chat in real time, and manage their accounts. Built using the MERN stack, Threadio provides a seamless and interactive user experience with additional features like real-time chat, media handling, and customizable themes.
