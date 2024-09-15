@@ -7,10 +7,17 @@ import UserPage from "./pages/UserPage";
 import ChatPage from "./pages/ChatPage";
 import PostPage from "./pages/PostPage";
 import SettingsPage from "./pages/SettingsPage";
+import Header from "./components/Header";
 const App = () => {
   return (
     <Container maxW="620px">
+      <Header />
+
       <Routes>
+        <Route path="/:username" element={<UserPage />} />
+        <Route path="/:username/post/:pid" element={<PostPage />} />
+      </Routes>
+      {/* <Routes>
         <Route
           path="/"
           element={user ? <HomePage /> : <Navigate to="/auth" />}
@@ -46,7 +53,7 @@ const App = () => {
           path="/settings"
           element={user ? <SettingsPage /> : <Navigate to={"/auth"} />}
         />
-      </Routes>
+      </Routes> */}
     </Container>
   );
 };
