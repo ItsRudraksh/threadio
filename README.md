@@ -43,10 +43,10 @@ cd threadio
 
 ### **Setup Backend**
 
-1. **Navigate to Backend Directory:**
+1. **Navigate to Root Directory:**
 
    ```bash
-   cd server
+   cd threadio
    ```
 
 2. **Install Dependencies:**
@@ -62,7 +62,7 @@ cd threadio
 4. **Start the Server:**
 
    ```bash
-   npm start
+   npm run dev
    ```
 
 ### **Setup Frontend**
