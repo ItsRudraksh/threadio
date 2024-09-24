@@ -1,78 +1,255 @@
-import { Flex } from "@chakra-ui/react";
-const Actions = ({ liked, setLiked }) => {
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { useState } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
+import useShowToast from "../hooks/useShowToast";
+import postsAtom from "../atoms/postsAtom";
+const Actions = ({ post }) => {
+  const user = useRecoilValue(userAtom);
+  const [liked, setLiked] = useState(post.likes.includes(user?._id));
+  const [posts, setPosts] = useRecoilState(postsAtom);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
+  const [reply, setReply] = useState("");
+
+  const showToast = useShowToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleLikeAndUnlike = async () => {
+    if (!user)
+      return showToast(
+        "Error",
+        "You must be logged in to like a post",
+        "error"
+      );
+    if (isLiking) return;
+    setIsLiking(true);
+    try {
+      const res = await fetch(`/api/v1/posts/like/${post._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      if (data.error) return showToast("Error", data.error, "error");
+
+      if (!liked) {
+        // add the id of the current user to post.likes array
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, likes: [...p.likes, user._id] };
+          }
+          return p;
+        });
+        setPosts(updatedPosts);
+      } else {
+        // remove the id of the current user from post.likes array
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, likes: p.likes.filter((id) => id !== user._id) };
+          }
+          return p;
+        });
+        setPosts(updatedPosts);
+      }
+
+      setLiked(!liked);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
+  const handleReply = async () => {
+    if (!user)
+      return showToast(
+        "Error",
+        "You must be logged in to reply to a post",
+        "error"
+      );
+    if (isReplying) return;
+    setIsReplying(true);
+    try {
+      const res = await fetch(`/api/v1/posts/reply/${post._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: reply }),
+      });
+      const data = await res.json();
+      if (data.error) return showToast("Error", data.error, "error");
+
+      const updatedPosts = posts.map((p) => {
+        if (p._id === post._id) {
+          return { ...p, replies: [...p.replies, data] };
+        }
+        return p;
+      });
+      setPosts(updatedPosts);
+      showToast("Success", "Reply posted successfully", "success");
+      onClose();
+      setReply("");
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setIsReplying(false);
+    }
+  };
+
   return (
-    <Flex gap={3} my={2} cursor={"pointer"} onClick={(e) => e.preventDefault()}>
-      <svg
-        aria-label="Like"
-        role="img"
-        viewBox="0 0 18 18"
-        width="20"
-        height="20"
-        color={liked ? "rgb(237, 73, 86)" : ""}
-        fill={liked ? "rgb(237, 73, 86)" : "transparent"}
-        onClick={() => setLiked(!liked)}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M1.34375 7.53125L1.34375 7.54043C1.34374 8.04211 1.34372 8.76295 1.6611 9.65585C1.9795 10.5516 2.60026 11.5779 3.77681 12.7544C5.59273 14.5704 7.58105 16.0215 8.33387 16.5497C8.73525 16.8313 9.26573 16.8313 9.66705 16.5496C10.4197 16.0213 12.4074 14.5703 14.2232 12.7544C15.3997 11.5779 16.0205 10.5516 16.3389 9.65585C16.6563 8.76296 16.6563 8.04211 16.6562 7.54043V7.53125C16.6562 5.23466 15.0849 3.25 12.6562 3.25C11.5214 3.25 10.6433 3.78244 9.99228 4.45476C9.59009 4.87012 9.26356 5.3491 9 5.81533C8.73645 5.3491 8.40991 4.87012 8.00772 4.45476C7.35672 3.78244 6.47861 3.25 5.34375 3.25C2.9151 3.25 1.34375 5.23466 1.34375 7.53125Z"
-          strokeWidth="1.25"
-          stroke="currentColor"
-        />
-      </svg>
+    <Flex flexDirection="column">
+      <Flex gap={3} my={2} onClick={(e) => e.preventDefault()}>
+        <svg
+          aria-label="Like"
+          color={liked ? "rgb(237, 73, 86)" : ""}
+          fill={liked ? "rgb(237, 73, 86)" : "transparent"}
+          height="19"
+          role="img"
+          viewBox="0 0 24 22"
+          width="20"
+          onClick={handleLikeAndUnlike}
+        >
+          <path
+            d="M1 7.66c0 4.575 3.899 9.086 9.987 12.934.338.203.74.406 1.013.406.283 0 .686-.203 1.013-.406C19.1 16.746 23 12.234 23 7.66 23 3.736 20.245 1 16.672 1 14.603 1 12.98 1.94 12 3.352 11.042 1.952 9.408 1 7.328 1 3.766 1 1 3.736 1 7.66Z"
+            stroke="currentColor"
+            strokeWidth="2"
+          ></path>
+        </svg>
 
-      <svg
-        aria-label="Comment"
-        role="img"
-        viewBox="0 0 18 18"
-        width="20"
-        height="20"
-        fill="transparent"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M15.376 13.2177L16.2861 16.7955L12.7106 15.8848C12.6781 15.8848 12.6131 15.8848 12.5806 15.8848C11.3779 16.5678 9.94767 16.8931 8.41995 16.7955C4.94194 16.5353 2.08152 13.7381 1.72397 10.2578C1.2689 5.63919 5.13697 1.76863 9.75264 2.22399C13.2307 2.58177 16.0261 5.41151 16.2861 8.92429C16.4161 10.453 16.0586 11.8841 15.376 13.0876C15.376 13.1526 15.376 13.1852 15.376 13.2177Z"
-          strokeLinejoin="round"
-          strokeWidth="1.25"
-          stroke="currentColor"
-        />
-      </svg>
+        <svg
+          aria-label="Comment"
+          color=""
+          fill=""
+          height="20"
+          role="img"
+          viewBox="0 0 24 24"
+          width="20"
+          onClick={onOpen}
+        >
+          <title>Comment</title>
+          <path
+            d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z"
+            fill="none"
+            stroke="currentColor"
+            strokeLinejoin="round"
+            strokeWidth="2"
+          ></path>
+        </svg>
 
-      <svg
-        aria-label="Repost"
-        role="img"
-        viewBox="0 0 18 18"
-        width="20"
-        height="20"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M6.41256 1.23531C6.6349 0.971277 7.02918 0.937481 7.29321 1.15982L9.96509 3.40982C10.1022 3.52528 10.1831 3.69404 10.1873 3.87324C10.1915 4.05243 10.1186 4.2248 9.98706 4.34656L7.31518 6.81971C7.06186 7.05419 6.66643 7.03892 6.43196 6.7856C6.19748 6.53228 6.21275 6.13685 6.46607 5.90237L7.9672 4.51289H5.20312C3.68434 4.51289 2.45312 5.74411 2.45312 7.26289V9.51289V11.7629C2.45312 13.2817 3.68434 14.5129 5.20312 14.5129C5.5483 14.5129 5.82812 14.7927 5.82812 15.1379C5.82812 15.4831 5.5483 15.7629 5.20312 15.7629C2.99399 15.7629 1.20312 13.972 1.20312 11.7629V9.51289V7.26289C1.20312 5.05375 2.99399 3.26289 5.20312 3.26289H7.85002L6.48804 2.11596C6.22401 1.89362 6.19021 1.49934 6.41256 1.23531Z" />
-        <path d="M11.5874 17.7904C11.3651 18.0545 10.9708 18.0883 10.7068 17.8659L8.03491 15.6159C7.89781 15.5005 7.81687 15.3317 7.81267 15.1525C7.80847 14.9733 7.8814 14.801 8.01294 14.6792L10.6848 12.206C10.9381 11.9716 11.3336 11.9868 11.568 12.2402C11.8025 12.4935 11.7872 12.8889 11.5339 13.1234L10.0328 14.5129H12.7969C14.3157 14.5129 15.5469 13.2816 15.5469 11.7629V9.51286V7.26286C15.5469 5.74408 14.3157 4.51286 12.7969 4.51286C12.4517 4.51286 12.1719 4.23304 12.1719 3.88786C12.1719 3.54269 12.4517 3.26286 12.7969 3.26286C15.006 3.26286 16.7969 5.05373 16.7969 7.26286V9.51286V11.7629C16.7969 13.972 15.006 15.7629 12.7969 15.7629H10.15L11.512 16.9098C11.776 17.1321 11.8098 17.5264 11.5874 17.7904Z" />
-      </svg>
+        <RepostSVG />
+        <ShareSVG />
+      </Flex>
 
-      <svg
-        aria-label="Share"
-        role="img"
-        viewBox="0 0 18 18"
-        width="18"
-        height="18"
-        fill="transparent"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M15.6097 4.09082L6.65039 9.11104"
-          strokeLinejoin="round"
-          strokeWidth="1.25"
-          stroke="currentColor"
-        />
-        <path
-          d="M7.79128 14.439C8.00463 15.3275 8.11131 15.7718 8.33426 15.932C8.52764 16.071 8.77617 16.1081 9.00173 16.0318C9.26179 15.9438 9.49373 15.5501 9.95761 14.7628L15.5444 5.2809C15.8883 4.69727 16.0603 4.40546 16.0365 4.16566C16.0159 3.95653 15.9071 3.76612 15.7374 3.64215C15.5428 3.5 15.2041 3.5 14.5267 3.5H3.71404C2.81451 3.5 2.36474 3.5 2.15744 3.67754C1.97758 3.83158 1.88253 4.06254 1.90186 4.29856C1.92415 4.57059 2.24363 4.88716 2.88259 5.52032L6.11593 8.7243C6.26394 8.87097 6.33795 8.94431 6.39784 9.02755C6.451 9.10144 6.4958 9.18101 6.53142 9.26479C6.57153 9.35916 6.59586 9.46047 6.64451 9.66309L7.79128 14.439Z"
-          strokeLinejoin="round"
-          strokeWidth="1.25"
-          stroke="currentColor"
-        />
-      </svg>
+      <Flex gap={2} alignItems={"center"}>
+        <Text color={"gray.light"} fontSize="sm">
+          {post.replies.length} replies
+        </Text>
+        <Box w={0.5} h={0.5} borderRadius={"full"} bg={"gray.light"}></Box>
+        <Text color={"gray.light"} fontSize="sm">
+          {post.likes.length} likes
+        </Text>
+      </Flex>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader></ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <Input
+                placeholder="Reply goes here.."
+                value={reply}
+                onChange={(e) => setReply(e.target.value)}
+              />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              size={"sm"}
+              mr={3}
+              isLoading={isReplying}
+              onClick={handleReply}
+            >
+              Reply
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Flex>
+  );
+};
+
+const RepostSVG = () => {
+  return (
+    <svg
+      aria-label="Repost"
+      color="currentColor"
+      fill="currentColor"
+      height="20"
+      role="img"
+      viewBox="0 0 24 24"
+      width="20"
+    >
+      <title>Repost</title>
+      <path
+        fill=""
+        d="M19.998 9.497a1 1 0 0 0-1 1v4.228a3.274 3.274 0 0 1-3.27 3.27h-5.313l1.791-1.787a1 1 0 0 0-1.412-1.416L7.29 18.287a1.004 1.004 0 0 0-.294.707v.001c0 .023.012.042.013.065a.923.923 0 0 0 .281.643l3.502 3.504a1 1 0 0 0 1.414-1.414l-1.797-1.798h5.318a5.276 5.276 0 0 0 5.27-5.27v-4.228a1 1 0 0 0-1-1Zm-6.41-3.496-1.795 1.795a1 1 0 1 0 1.414 1.414l3.5-3.5a1.003 1.003 0 0 0 0-1.417l-3.5-3.5a1 1 0 0 0-1.414 1.414l1.794 1.794H8.27A5.277 5.277 0 0 0 3 9.271V13.5a1 1 0 0 0 2 0V9.271a3.275 3.275 0 0 1 3.271-3.27Z"
+      ></path>
+    </svg>
+  );
+};
+
+const ShareSVG = () => {
+  return (
+    <svg
+      aria-label="Share"
+      color=""
+      fill="rgb(243, 245, 247)"
+      height="20"
+      role="img"
+      viewBox="0 0 24 24"
+      width="20"
+    >
+      <title>Share</title>
+      <line
+        fill="none"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        x1="22"
+        x2="9.218"
+        y1="3"
+        y2="10.083"
+      ></line>
+      <polygon
+        fill="none"
+        points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      ></polygon>
+    </svg>
   );
 };
 

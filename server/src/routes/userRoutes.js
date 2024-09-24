@@ -2,6 +2,8 @@ import express from "express";
 import {
   followUnFollowUser,
   freezeAccount,
+  getAllUsers,
+  getFollowersAndFollowing,
   getSuggestedUsers,
   getUserProfile,
   loginUser,
@@ -21,5 +23,11 @@ router.post("/follow/:id", verifyToken, followUnFollowUser);
 router.put("/update/:id", verifyToken, updateUser);
 router.get("/suggested", verifyToken, getSuggestedUsers);
 router.get("/profile/:query", getUserProfile);
+router.get(
+  "/:username/followers&following",
+  verifyToken,
+  getFollowersAndFollowing
+);
+router.get("/", getAllUsers);
 
 export default router;

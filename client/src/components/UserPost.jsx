@@ -1,6 +1,8 @@
-import { Link } from "react-router-dom";
-import { Avatar, Box, Flex, Image, Text } from "@chakra-ui/react";
+import { Avatar } from "@chakra-ui/avatar";
+import { Image } from "@chakra-ui/image";
+import { Box, Flex, Text } from "@chakra-ui/layout";
 import { BsThreeDots } from "react-icons/bs";
+import { Link } from "react-router-dom";
 import Actions from "./Actions";
 import { useState } from "react";
 const UserPost = ({ postImg, postTitle, likes, replies }) => {
@@ -68,9 +70,11 @@ const UserPost = ({ postImg, postTitle, likes, replies }) => {
               <Image src={postImg} w={"full"} />
             </Box>
           )}
+
           <Flex gap={3} my={1}>
             <Actions liked={liked} setLiked={setLiked} />
           </Flex>
+
           <Flex gap={2} alignItems={"center"}>
             <Text color={"gray.light"} fontSize="sm">
               {replies} replies

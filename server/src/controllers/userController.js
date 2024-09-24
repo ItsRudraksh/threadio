@@ -196,7 +196,46 @@ export const updateUser = async (req, res) => {
   }
 };
 
+// Convert userId to ObjectId
+const ObjectId = mongoose.Types.ObjectId;
 export const getSuggestedUsers = async (req, res) => {
+  try {
+    const userId = req.user.id; // Get the userId from the verified token
+    // console.log(userId);
+
+    // Find the users followed by the current user
+    const usersFollowedByYou = await User.findById(userId).select("following");
+
+    const users = await User.aggregate([
+      {
+        $match: {
+          _id: { $ne: new ObjectId(userId) }, // Exclude the current user
+        },
+      },
+      {
+        $sample: { size: 10 }, // Randomly sample 10 users
+      },
+    ]);
+
+    // Filter out users that are already followed by the current user
+    const filteredUsers = users.filter(
+      (user) => !usersFollowedByYou.following.includes(user._id.toString())
+    );
+
+    // Take only 4 users from the filtered list
+    const suggestedUsers = filteredUsers.slice(0, 4);
+
+    // Remove password field
+    suggestedUsers.forEach((user) => (user.password = null));
+
+    // Send the suggested users as response
+    res.status(200).json(suggestedUsers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+/* export const getSuggestedUsers = async (req, res) => {
   try {
     // exclude the current user from suggested users array and exclude users that current user is already following
     const userId = req.user.id;
@@ -224,7 +263,7 @@ export const getSuggestedUsers = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
+}; */
 
 export const getUserProfile = async (req, res) => {
   // We will fetch user profile either with username or userId
@@ -252,5 +291,46 @@ export const getUserProfile = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
     console.log("Error in getUserProfile: ", err.message);
+  }
+};
+
+export const getFollowersAndFollowing = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const foundUser = await User.findById(userId);
+    if (!foundUser) return res.status(400).json({ error: "User not found" });
+    // Use Promise.all to wait for all async operations
+    const userFollowers = await Promise.all(
+      foundUser.followers.map(async (follower) => {
+        const foundFollower = await User.findById(follower);
+        return foundFollower;
+      })
+    );
+
+    const userFollowing = await Promise.all(
+      foundUser.following.map(async (followed) => {
+        const foundFollowed = await User.findById(followed);
+        return foundFollowed;
+      })
+    );
+
+    // Return both arrays
+    res.status(200).json({
+      userFollowers,
+      userFollowing,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in getFollowers: ", error.message);
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const allUsers = await User.find();
+    res.status(200).json({ allUsers });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in getAllUsers: ", error.message);
   }
 };
