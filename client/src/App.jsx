@@ -12,6 +12,7 @@ import { useRecoilValue } from "recoil";
 import userAtom from "./atoms/userAtom";
 import CreatePost from "./components/CreatePost";
 import FollowersAndFollowing from "./pages/FollowersAndFollowing";
+import SearchPage from "./pages/SearchPage";
 const App = () => {
   const user = useRecoilValue(userAtom);
   const { pathname } = useLocation();
@@ -64,10 +65,8 @@ const App = () => {
             }
           />
           <Route
-            path="/connections"
-            element={
-              user ? <FollowersAndFollowing /> : <Navigate to={"/auth"} />
-            }
+            path="/search"
+            element={user ? <SearchPage /> : <Navigate to={"/auth"} />}
           />
         </Routes>
       </Container>
