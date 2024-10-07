@@ -1,13 +1,15 @@
-import express from "express";
+/* import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 import { v2 as cloudinary } from "cloudinary";
+import { app } from "./config/socket.js";
 dotenv.config();
 
-const app = express();
+// const appMain = app;
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -22,5 +24,5 @@ app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/posts", postRoutes);
-
-export default app;
+app.use("/api/v1/messages", messageRoutes);
+ */
