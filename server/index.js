@@ -1,5 +1,4 @@
 import express from "express";
-// import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import userRoutes from "./src/routes/userRoutes.js";
@@ -20,7 +19,6 @@ cloudinary.config({
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
-// app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/posts", postRoutes);
@@ -30,3 +28,7 @@ server.listen(port, () => {
   connectToDB();
   console.log(`Server is running on port ${port}`);
 });
+
+
+const a = "HEllo"
+a.toLowerCase

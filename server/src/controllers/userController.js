@@ -235,36 +235,6 @@ export const getSuggestedUsers = async (req, res) => {
   }
 };
 
-/* export const getSuggestedUsers = async (req, res) => {
-  try {
-    // exclude the current user from suggested users array and exclude users that current user is already following
-    const userId = req.user.id;
-
-    const usersFollowedByYou = await User.findById(userId).select("following");
-
-    const users = await User.aggregate([
-      {
-        $match: {
-          _id: { $ne: userId },
-        },
-      },
-      {
-        $sample: { size: 10 },
-      },
-    ]);
-    const filteredUsers = users.filter(
-      (user) => !usersFollowedByYou.following.includes(user._id)
-    );
-    const suggestedUsers = filteredUsers.slice(0, 4);
-
-    suggestedUsers.forEach((user) => (user.password = null));
-
-    res.status(200).json(suggestedUsers);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-}; */
-
 export const getUserProfile = async (req, res) => {
   // We will fetch user profile either with username or userId
   // query is either username or userId
