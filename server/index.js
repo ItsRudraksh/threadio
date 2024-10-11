@@ -1,3 +1,4 @@
+import path from "path"; //FOR DEPLOYMENT
 import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -10,6 +11,8 @@ import { connectToDB } from "./src/config/db.js";
 dotenv.config();
 
 const port = process.env.PORT;
+const __dirname = path.resolve(); //FOR DEPLOYMENT
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -24,11 +27,20 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/messages", messageRoutes);
 
+//FOR DEPLOYMENT
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  // react app
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
+
 server.listen(port, () => {
   connectToDB();
-  console.log(`Server is running on port ${port}`);
+  console.log(
+    `Server is running on port ${port} and node-env is ${process.env.NODE_ENV}`
+  );
 });
-
-
-const a = "HEllo"
-a.toLowerCase
