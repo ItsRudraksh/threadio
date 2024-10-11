@@ -9,7 +9,11 @@ import messageRoutes from "./src/routes/messageRoutes.js";
 import { v2 as cloudinary } from "cloudinary";
 import { server, app } from "./src/config/socket.js";
 import { connectToDB } from "./src/config/db.js";
+import job from "./src/job/job.js";
+
 dotenv.config();
+
+job.start(); //FOR DEPLOYMENT
 
 const port = process.env.PORT;
 const __filename = url.fileURLToPath(import.meta.url); //FOR DEPLOYMENT
