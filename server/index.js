@@ -1,4 +1,5 @@
 import path from "path"; //FOR DEPLOYMENT
+import url from "url"; //FOR DEPLOYMENT
 import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -11,7 +12,8 @@ import { connectToDB } from "./src/config/db.js";
 dotenv.config();
 
 const port = process.env.PORT;
-const __dirname = path.resolve(); //FOR DEPLOYMENT
+const __filename = url.fileURLToPath(import.meta.url); //FOR DEPLOYMENT
+const __dirname = path.dirname(__filename); //FOR DEPLOYMENT
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -22,19 +24,16 @@ cloudinary.config({
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "../client/dist"))); //FOR DEPLOYMENT
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/messages", messageRoutes);
 
 //FOR DEPLOYMENT
-
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/client/dist")));
-
-  // react app
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+    res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
   });
 }
 
