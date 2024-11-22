@@ -29,7 +29,8 @@ const SignupCard = () => {
     email: "",
     password: "",
   });
-
+  const [otp, setOtp] = useState("");
+  const [showOtpInput, setShowOtpInput] = useState(false); // State to toggle OTP screen
   const showToast = useShowToast();
   const setUser = useSetRecoilState(userAtom);
 
@@ -49,10 +50,36 @@ const SignupCard = () => {
         return;
       }
 
+      // Show success message and toggle to OTP input
+      showToast("Success", "Signup successful. Verify to continue.", "success");
+      setShowOtpInput(true);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    try {
+      const res = await fetch(`/api/v1/users/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: inputs.email, otp }),
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+
+      // Save user data and redirect to app
       localStorage.setItem("user-threads", JSON.stringify(data));
       setUser(data);
+      showToast("Success", "Verification successful!", "success");
     } catch (error) {
-      showToast("Error", error, "error");
+      showToast("Error", error.message, "error");
     }
   };
 
@@ -61,7 +88,7 @@ const SignupCard = () => {
       <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
         <Stack align={"center"}>
           <Heading fontSize={"4xl"} textAlign={"center"}>
-            Sign up
+            {showOtpInput ? "Verify Your Email" : "Sign up"}
           </Heading>
         </Stack>
         <Box
@@ -71,86 +98,119 @@ const SignupCard = () => {
           p={8}
         >
           <Stack spacing={4}>
-            <HStack>
-              <Box>
-                <FormControl isRequired>
-                  <FormLabel>Full name</FormLabel>
-                  <Input
-                    type="text"
-                    onChange={(e) =>
-                      setInputs({ ...inputs, name: e.target.value })
-                    }
-                    value={inputs.name}
-                  />
-                </FormControl>
-              </Box>
-              <Box>
-                <FormControl isRequired>
-                  <FormLabel>Username</FormLabel>
-                  <Input
-                    type="text"
-                    onChange={(e) =>
-                      setInputs({ ...inputs, username: e.target.value })
-                    }
-                    value={inputs.username}
-                  />
-                </FormControl>
-              </Box>
-            </HStack>
-            <FormControl isRequired>
-              <FormLabel>Email address</FormLabel>
-              <Input
-                type="email"
-                onChange={(e) =>
-                  setInputs({ ...inputs, email: e.target.value })
-                }
-                value={inputs.email}
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
-              <InputGroup>
+            {showOtpInput ? (
+              // OTP Input Screen
+              <FormControl isRequired>
+                <FormLabel>Enter OTP</FormLabel>
                 <Input
-                  type={showPassword ? "text" : "password"}
-                  onChange={(e) =>
-                    setInputs({ ...inputs, password: e.target.value })
-                  }
-                  value={inputs.password}
+                  type="text"
+                  onChange={(e) => setOtp(e.target.value)}
+                  value={otp}
                 />
-                <InputRightElement h={"full"}>
+                <Stack spacing={10} pt={4}>
                   <Button
-                    variant={"ghost"}
-                    onClick={() =>
-                      setShowPassword((showPassword) => !showPassword)
-                    }
+                    size="lg"
+                    bg={useColorModeValue("gray.600", "gray.700")}
+                    color={"white"}
+                    _hover={{
+                      bg: useColorModeValue("gray.700", "gray.800"),
+                    }}
+                    onClick={handleVerifyOtp}
                   >
-                    {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                    Verify
                   </Button>
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-            <Stack spacing={10} pt={2}>
-              <Button
-                loadingText="Submitting"
-                size="lg"
-                bg={useColorModeValue("gray.600", "gray.700")}
-                color={"white"}
-                _hover={{
-                  bg: useColorModeValue("gray.700", "gray.800"),
-                }}
-                onClick={handleSignup}
-              >
-                Sign up
-              </Button>
-            </Stack>
-            <Stack pt={6}>
-              <Text align={"center"}>
-                Already a user?{" "}
-                <Link color={"blue.400"} onClick={() => setAuthScreen("login")}>
-                  Login
-                </Link>
-              </Text>
-            </Stack>
+                </Stack>
+              </FormControl>
+            ) : (
+              // Signup Form
+              <>
+                <HStack>
+                  <Box>
+                    <FormControl isRequired>
+                      <FormLabel>Full name</FormLabel>
+                      <Input
+                        type="text"
+                        onChange={(e) =>
+                          setInputs({ ...inputs, name: e.target.value })
+                        }
+                        value={inputs.name}
+                      />
+                    </FormControl>
+                  </Box>
+                  <Box>
+                    <FormControl isRequired>
+                      <FormLabel>Username</FormLabel>
+                      <Input
+                        type="text"
+                        onChange={(e) =>
+                          setInputs({ ...inputs, username: e.target.value })
+                        }
+                        value={inputs.username}
+                      />
+                    </FormControl>
+                  </Box>
+                </HStack>
+                <FormControl isRequired>
+                  <FormLabel>Email address</FormLabel>
+                  <Input
+                    type="email"
+                    onChange={(e) =>
+                      setInputs({ ...inputs, email: e.target.value })
+                    }
+                    value={inputs.email}
+                  />
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel>Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      onChange={(e) =>
+                        setInputs({ ...inputs, password: e.target.value })
+                      }
+                      value={inputs.password}
+                    />
+                    <InputRightElement h={"full"}>
+                      <Button
+                        variant={"ghost"}
+                        onClick={() =>
+                          setShowPassword((showPassword) => !showPassword)
+                        }
+                      >
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+                <Stack spacing={10} pt={2}>
+                  <Button
+                    loadingText="Submitting"
+                    size="lg"
+                    bg={useColorModeValue("gray.600", "gray.700")}
+                    color={"white"}
+                    _hover={{
+                      bg: useColorModeValue("gray.700", "gray.800"),
+                    }}
+                    onClick={handleSignup}
+                  >
+                    Sign up
+                  </Button>
+                </Stack>
+              </>
+            )}
+            {!showOtpInput && (
+              <Stack pt={6}>
+                <Text align={"center"}>
+                  Already a user?{" "}
+                  <Link
+                    color={"blue.400"}
+                    onClick={() => setAuthScreen("login")}
+                  >
+                    Login
+                  </Link>
+                </Text>
+              </Stack>
+            )}
           </Stack>
         </Box>
       </Stack>

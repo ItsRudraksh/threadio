@@ -13,6 +13,8 @@ import userAtom from "./atoms/userAtom";
 import CreatePost from "./components/CreatePost";
 import FollowersAndFollowing from "./pages/FollowersAndFollowing";
 import SearchPage from "./pages/SearchPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 const App = () => {
   const user = useRecoilValue(userAtom);
   const { pathname } = useLocation();
@@ -68,6 +70,8 @@ const App = () => {
             path="/search"
             element={user ? <SearchPage /> : <Navigate to={"/auth"} />}
           />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
       </Container>
     </Box>

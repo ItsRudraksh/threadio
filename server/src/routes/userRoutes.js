@@ -1,6 +1,7 @@
 import express from "express";
 import {
   followUnFollowUser,
+  forgotPassword,
   freezeAccount,
   getAllUsers,
   getFollowersAndFollowing,
@@ -8,8 +9,10 @@ import {
   getUserProfile,
   loginUser,
   logoutUser,
+  resetPassword,
   signupUser,
   updateUser,
+  verifyUser,
 } from "../controllers/userController.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 
@@ -18,6 +21,9 @@ const router = express.Router();
 router.post("/signup", signupUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
+router.post("/verify", verifyUser);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 router.put("/freeze", verifyToken, freezeAccount);
 router.post("/follow/:id", verifyToken, followUnFollowUser);
 router.put("/update/:id", verifyToken, updateUser);

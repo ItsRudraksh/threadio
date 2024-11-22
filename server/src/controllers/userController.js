@@ -4,6 +4,10 @@ import bcrypt from "bcryptjs";
 import { generateTokenAndSetCookie } from "../utils/token.js";
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
+import nodemailer from "nodemailer";
+import crypto from "crypto";
+import sendEmail from "../config/mail.js";
+
 export const signupUser = async (req, res) => {
   try {
     const { name, email, username, password } = req.body;
@@ -15,28 +19,44 @@ export const signupUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Generate a 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    // Create expiration time (10 minutes)
+    const verificationExpires = Date.now() + 10 * 60 * 1000;
+
     const newUser = new User({
       name,
       email,
       username,
       password: hashedPassword,
+      verificationCode: otp,
+      verificationExpires,
     });
+
     await newUser.save();
 
-    if (newUser) {
-      generateTokenAndSetCookie(res, newUser._id);
+    // Send OTP email
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // Or your email service provider
+      auth: {
+        user: process.env.EMAIL, // Your email
+        pass: process.env.EMAIL_PASSWORD, // Your email password or app password
+      },
+    });
 
-      res.status(201).json({
-        _id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        username: newUser.username,
-        bio: newUser.bio,
-        profilePic: newUser.profilePic,
-      });
-    } else {
-      res.status(400).json({ error: "Invalid user data" });
-    }
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Verify Your Email - Threadio",
+      text: `Your verification code is ${otp}. It expires in 10 minutes.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(201).json({
+      message: "Signup successful. Verify your email to complete the process.",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
     console.error("Error in signupUser: ", error.message);
@@ -83,6 +103,124 @@ export const logoutUser = (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
     console.log("Error in signupUser: ", err.message);
+  }
+};
+
+export const verifyUser = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ error: "User already verified" });
+    }
+
+    if (
+      user.verificationCode !== otp ||
+      user.verificationExpires < Date.now()
+    ) {
+      return res.status(400).json({ error: "Invalid or expired OTP" });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = undefined;
+    user.verificationExpires = undefined;
+
+    await user.save();
+
+    generateTokenAndSetCookie(res, user._id);
+
+    res.status(200).json({
+      message: "Verification successful",
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      bio: user.bio,
+      profilePic: user.profilePic,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.error("Error in verifyUser: ", error.message);
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Generate a reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    // Save token and expiry to the user's document
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    // Send reset link via email
+    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+    const message = `You have requested to reset your password. Click the link below to reset it:\n\n${resetUrl}\n\nIf you didn't request this, ignore this email.`;
+
+    await sendEmail({
+      to: user.email,
+      subject: "Password Reset",
+      text: message,
+    });
+
+    res.status(200).json({ message: "Password reset email sent!" });
+  } catch (error) {
+    console.error("Error in forgotPassword:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    // Hash the token to match with the stored hashed token
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Find user with the matching token and ensure it's not expired
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }, // Token must not be expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid or expired token" });
+    }
+
+    // Update user's password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    user.password = hashedPassword;
+
+    // Clear the reset token and expiry fields
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Password has been reset!" });
+  } catch (error) {
+    console.error("Error in resetPassword:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
