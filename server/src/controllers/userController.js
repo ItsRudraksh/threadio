@@ -7,10 +7,23 @@ import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import sendEmail from "../config/mail.js";
+import { isValidEmail, isValidPassword } from "../utils/validation.js";
 
 export const signupUser = async (req, res) => {
   try {
     const { name, email, username, password } = req.body;
+    // Validate email
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    // Validate password
+    if (!isValidPassword(password)) {
+      return res.status(400).json({
+        error:
+          "Password must be at least 8 characters long and include 2 uppercase letters, 2 numbers, 2 special characters, and 2 lowercase letters.",
+      });
+    }
     const user = await User.findOne({ $or: [{ email }, { username }] });
 
     if (user) {
@@ -173,7 +186,8 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // Send reset link via email
-    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+    // const resetUrl = `http://localhost:3000/reset-password/${resetToken}`; //Local URL
+    const resetUrl = `https://threadio.onrender.com/reset-password/${resetToken}`; //Deployed URL
     const message = `You have requested to reset your password. Click the link below to reset it:\n\n${resetUrl}\n\nIf you didn't request this, ignore this email.`;
 
     await sendEmail({
@@ -193,6 +207,14 @@ export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
+
+    // Validate password
+    if (!isValidPassword(password)) {
+      return res.status(400).json({
+        error:
+          "Password must be at least 8 characters long and include 2 uppercase letters, 2 numbers, 2 special characters, and 2 lowercase letters.",
+      });
+    }
 
     // Hash the token to match with the stored hashed token
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");

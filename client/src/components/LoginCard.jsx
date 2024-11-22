@@ -19,7 +19,9 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authScreenAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import { Link as Redirect } from "react-router-dom";
 const LoginCard = () => {
+  const baseURL = window.location.origin;
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
   const setUser = useSetRecoilState(userAtom);
@@ -133,6 +135,13 @@ const LoginCard = () => {
                   onClick={() => setAuthScreen("signup")}
                 >
                   Sign up
+                </Link>
+              </Text>
+              <Text align={"center"}>
+                <Link color={"blue.400"}>
+                  <Redirect to={`${baseURL}/forgot-password`}>
+                    Forgot Password?
+                  </Redirect>
                 </Link>
               </Text>
             </Stack>
