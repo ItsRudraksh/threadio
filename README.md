@@ -15,6 +15,9 @@ Threadio is a modern social media application designed for real-time interaction
 - 💬 Real-time chat with image support
 - 👀 Seen/unseen status for messages
 - 🔊 Notification sounds
+- 🔏 Two Factor Authentication
+- 🤔 Forgot Password Functionality
+- ✅ Proper Email Password Validations
 
 ## **Technologies Used**
 
