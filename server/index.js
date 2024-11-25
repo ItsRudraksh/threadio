@@ -13,11 +13,11 @@ import job from "./src/job/job.js";
 
 dotenv.config();
 
-job.start(); //FOR DEPLOYMENT
+// job.start(); //FOR DEPLOYMENT
 
 const port = process.env.PORT;
-const __filename = url.fileURLToPath(import.meta.url); //FOR DEPLOYMENT
-const __dirname = path.dirname(__filename); //FOR DEPLOYMENT
+// const __filename = url.fileURLToPath(import.meta.url); //FOR DEPLOYMENT
+// const __dirname = path.dirname(__filename); //FOR DEPLOYMENT
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -28,7 +28,7 @@ cloudinary.config({
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "../client/dist"))); //FOR DEPLOYMENT
+// app.use(express.static(path.join(__dirname, "../client/dist"))); //FOR DEPLOYMENT
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/posts", postRoutes);
