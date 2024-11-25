@@ -20,6 +20,7 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authScreenAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import PasswordFieldWithValidation from "./PasswordFieldWithValidation";
 const SignupCard = () => {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
@@ -160,7 +161,13 @@ const SignupCard = () => {
                     value={inputs.email}
                   />
                 </FormControl>
-                <FormControl isRequired>
+
+                <PasswordFieldWithValidation
+                  value={inputs.password}
+                  onChange={(password) => setInputs({ ...inputs, password })}
+                />
+
+                {/* <FormControl isRequired>
                   <FormLabel>Password</FormLabel>
                   <InputGroup>
                     <Input
@@ -181,7 +188,7 @@ const SignupCard = () => {
                       </Button>
                     </InputRightElement>
                   </InputGroup>
-                </FormControl>
+                </FormControl> */}
                 <Stack spacing={10} pt={2}>
                   <Button
                     loadingText="Submitting"
