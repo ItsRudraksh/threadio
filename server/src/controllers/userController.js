@@ -186,8 +186,8 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // Send reset link via email
-    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`; //Local URL
-    // const resetUrl = `https://threadio.onrender.com/reset-password/${resetToken}`; //Deployed URL
+    // const resetUrl = `http://localhost:3000/reset-password/${resetToken}`; //Local URL
+    const resetUrl = `https://threadio.onrender.com/reset-password/${resetToken}`; //Deployed URL
     const message = `You have requested to reset your password. Click the link below to reset it:\n\n${resetUrl}\n\nIf you didn't request this, ignore this email.`;
 
     await sendEmail({
