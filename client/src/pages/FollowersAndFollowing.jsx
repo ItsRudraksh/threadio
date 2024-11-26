@@ -13,12 +13,12 @@ import { useParams } from "react-router-dom";
 import SuggestedUser from "../components/SuggestedUser";
 import { reloadAtom } from "../atoms/reloadAtom";
 import { useRecoilValue } from "recoil";
+
 const FollowersAndFollowing = () => {
-  const [myFollowers, setFollowers] = useState([]);
-  const [myFollowing, setFollowing] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const username = useParams();
+  const [data, setData] = useState(null);
+  const { username } = useParams();
   const reload = useRecoilValue(reloadAtom); // Listen to reload state
 
   useEffect(() => {
@@ -27,9 +27,8 @@ const FollowersAndFollowing = () => {
         const res = await fetch(
           `/api/v1/users/${username}/followers&following`
         );
-        const { userFollowers, userFollowing } = await res.json();
-        setFollowers(userFollowers);
-        setFollowing(userFollowing);
+        const fetchedData = await res.json();
+        setData(fetchedData);
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -47,6 +46,18 @@ const FollowersAndFollowing = () => {
     );
   if (error) return <p>Error: {error}</p>;
 
+  const { userFollowers = [], userFollowing = [] } = data || {};
+  console.log("followers: ", userFollowers);
+  console.log("following: ", userFollowing);
+
+  // Remove all null values
+  const filteredFollowers = userFollowers.filter(
+    (follower) => follower !== null
+  );
+  const filteredFollowing = userFollowing.filter(
+    (following) => following !== null
+  );
+
   return (
     <Tabs w={"full"}>
       <TabList w={"full"} mb={2}>
@@ -56,19 +67,19 @@ const FollowersAndFollowing = () => {
 
       <TabPanels>
         <TabPanel>
-          {myFollowers.map((follower) => (
-            <>
+          {filteredFollowers.map((follower) => (
+            <div key={follower.id}>
               <SuggestedUser user={follower} />
               <Divider my={4} />
-            </>
+            </div>
           ))}
         </TabPanel>
         <TabPanel>
-          {myFollowing.map((followed) => (
-            <>
+          {filteredFollowing.map((followed) => (
+            <div key={followed.id}>
               <SuggestedUser user={followed} />
               <Divider my={4} />
-            </>
+            </div>
           ))}
         </TabPanel>
       </TabPanels>
