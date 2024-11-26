@@ -102,6 +102,7 @@ export const loginUser = async (req, res) => {
       username: user.username,
       bio: user.bio,
       profilePic: user.profilePic,
+      frozen: user.isFrozen,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -156,6 +157,7 @@ export const verifyUser = async (req, res) => {
       username: user.username,
       bio: user.bio,
       profilePic: user.profilePic,
+      frozen: user.isFrozen,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -256,7 +258,15 @@ export const freezeAccount = async (req, res) => {
     user.isFrozen = true;
     await user.save();
 
-    res.status(200).json({ success: true });
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      bio: user.bio,
+      profilePic: user.profilePic,
+      frozen: user.isFrozen,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

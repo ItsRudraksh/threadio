@@ -21,6 +21,7 @@ import authScreenAtom from "../atoms/authScreenAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
 import PasswordFieldWithValidation from "./PasswordFieldWithValidation";
+import { useNavigate } from "react-router-dom";
 const SignupCard = () => {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
@@ -34,6 +35,7 @@ const SignupCard = () => {
   const [showOtpInput, setShowOtpInput] = useState(false); // State to toggle OTP screen
   const showToast = useShowToast();
   const setUser = useSetRecoilState(userAtom);
+  const navigate = useNavigate();
 
   const handleSignup = async () => {
     try {
@@ -78,7 +80,12 @@ const SignupCard = () => {
       // Save user data and redirect to app
       localStorage.setItem("user-threads", JSON.stringify(data));
       setUser(data);
-      showToast("Success", "Verification successful!", "success");
+      showToast(
+        "Success",
+        "Verification successful! Now login to continue",
+        "success"
+      );
+      // setAuthScreen("login");
     } catch (error) {
       showToast("Error", error.message, "error");
     }
@@ -106,7 +113,7 @@ const SignupCard = () => {
                 <Input
                   type="text"
                   onChange={(e) => setOtp(e.target.value)}
-                  value={otp}
+                  value={otp.trim()}
                 />
                 <Stack spacing={10} pt={4}>
                   <Button
@@ -166,29 +173,6 @@ const SignupCard = () => {
                   value={inputs.password}
                   onChange={(password) => setInputs({ ...inputs, password })}
                 />
-
-                {/* <FormControl isRequired>
-                  <FormLabel>Password</FormLabel>
-                  <InputGroup>
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      onChange={(e) =>
-                        setInputs({ ...inputs, password: e.target.value })
-                      }
-                      value={inputs.password}
-                    />
-                    <InputRightElement h={"full"}>
-                      <Button
-                        variant={"ghost"}
-                        onClick={() =>
-                          setShowPassword((showPassword) => !showPassword)
-                        }
-                      >
-                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-                </FormControl> */}
                 <Stack spacing={10} pt={2}>
                   <Button
                     loadingText="Submitting"

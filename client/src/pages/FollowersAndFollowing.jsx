@@ -28,7 +28,6 @@ const FollowersAndFollowing = () => {
           `/api/v1/users/${username}/followers&following`
         );
         const { userFollowers, userFollowing } = await res.json();
-        console.log(reload);
         setFollowers(userFollowers);
         setFollowing(userFollowing);
         setLoading(false);

@@ -1,9 +1,12 @@
 import { Button, Text } from "@chakra-ui/react";
 import useShowToast from "../hooks/useShowToast";
-import useLogout from "../hooks/useLogout";
+import { useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import userAtom from "../atoms/userAtom";
 const SettingsPage = () => {
   const showToast = useShowToast();
-  const logout = useLogout();
+  const navigate = useNavigate();
+  const setUser = useSetRecoilState(userAtom);
 
   const freezeAccount = async () => {
     if (!window.confirm("Are you sure you want to freeze your account?"))
@@ -19,10 +22,14 @@ const SettingsPage = () => {
       if (data.error) {
         return showToast("Error", data.error, "error");
       }
-      if (data.success) {
-        await logout();
-        showToast("Success", "Your account has been frozen", "success");
-      }
+      localStorage.setItem("user-threads", JSON.stringify(data));
+      setUser(data);
+      showToast(
+        "Success",
+        "Your account has been frozen\nRe-Login to unfreeze",
+        "success"
+      );
+      navigate("/auth");
     } catch (error) {
       showToast("Error", error.message, "error");
     }

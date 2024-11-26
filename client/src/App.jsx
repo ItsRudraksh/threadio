@@ -27,21 +27,29 @@ const App = () => {
         <Routes>
           <Route
             path="/"
-            element={user ? <HomePage /> : <Navigate to="/auth" />}
+            element={
+              user && !user.frozen ? <HomePage /> : <Navigate to="/auth" />
+            }
           />
           <Route
             path="/auth"
-            element={!user ? <AuthPage /> : <Navigate to="/" />}
+            element={!user || user.frozen ? <AuthPage /> : <Navigate to="/" />}
           />
           <Route
             path="/update"
-            element={user ? <UpdateProfilePage /> : <Navigate to="/auth" />}
+            element={
+              user && !user.frozen ? (
+                <UpdateProfilePage />
+              ) : (
+                <Navigate to="/auth" />
+              )
+            }
           />
 
           <Route
             path="/:username"
             element={
-              user ? (
+              user && !user.frozen ? (
                 <>
                   <UserPage />
                   <CreatePost />
@@ -54,21 +62,35 @@ const App = () => {
           <Route path="/:username/post/:pid" element={<PostPage />} />
           <Route
             path="/chat"
-            element={user ? <ChatPage /> : <Navigate to={"/auth"} />}
+            element={
+              user && !user.frozen ? <ChatPage /> : <Navigate to={"/auth"} />
+            }
           />
           <Route
             path="/settings"
-            element={user ? <SettingsPage /> : <Navigate to={"/auth"} />}
+            element={
+              user && !user.frozen ? (
+                <SettingsPage />
+              ) : (
+                <Navigate to={"/auth"} />
+              )
+            }
           />
           <Route
             path="/connections"
             element={
-              user ? <FollowersAndFollowing /> : <Navigate to={"/auth"} />
+              user && !user.frozen ? (
+                <FollowersAndFollowing />
+              ) : (
+                <Navigate to={"/auth"} />
+              )
             }
           />
           <Route
             path="/search"
-            element={user ? <SearchPage /> : <Navigate to={"/auth"} />}
+            element={
+              user && !user.frozen ? <SearchPage /> : <Navigate to={"/auth"} />
+            }
           />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
