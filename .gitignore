@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 .env
 *.pptx
+*.docx
+*.doc
+*.xls
+*.xlsx
+*.csv
+*.pdf

@@ -17,6 +17,13 @@ import {
   Textarea,
   useColorModeValue,
   useDisclosure,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Badge,
+  Box,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import usePreviewImg from "../hooks/usePreviewImg";
@@ -26,6 +33,10 @@ import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 import postsAtom from "../atoms/postsAtom";
 import { useParams } from "react-router-dom";
+import AIEnhancement from "./AIEnhancement";
+import ContentModeration from "./ContentModeration";
+import { checkContentModeration } from "../services/aiService";
+import ImageCaption from "./ImageCaption";
 
 const MAX_CHAR = 500;
 const CreatePost = () => {
@@ -39,6 +50,10 @@ const CreatePost = () => {
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useRecoilState(postsAtom);
   const { username } = useParams();
+  const [isContentAppropriate, setIsContentAppropriate] = useState(true);
+  const [isPosting, setIsPosting] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [imageCaption, setImageCaption] = useState("");
 
   const handleTextChange = (e) => {
     const inputText = e.target.value;
@@ -53,17 +68,37 @@ const CreatePost = () => {
     }
   };
 
+  const handleImageCaption = (caption) => {
+    setImageCaption(caption);
+  };
+
   const handleCreatePost = async () => {
-    setLoading(true);
+    if (!postText && !imgUrl) return;
+    if (isPosting) return;
+
+    setIsPosting(true);
     try {
-      const res = await fetch(`/api/v1/posts/create`, {
+      // First check content moderation
+      const moderationResult = await checkContentModeration(postText);
+      
+      if (!moderationResult.isAppropriate) {
+        showToast(
+          "Content Warning",
+          `Your post contains ${moderationResult.reason}. Please revise your content.`,
+          "warning"
+        );
+        setIsPosting(false);
+        return;
+      }
+
+      const res = await fetch("/api/v1/posts/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           postedBy: user._id,
-          text: postText,
+          text: imageCaption ? `${postText}\n\n${imageCaption}` : postText,
           img: imgUrl,
         }),
       });
@@ -74,17 +109,25 @@ const CreatePost = () => {
         return;
       }
       showToast("Success", "Post created successfully", "success");
-      if (username === user.username) {
-        setPosts([data, ...posts]);
-      }
       onClose();
       setPostText("");
       setImgUrl("");
+      setImageCaption("");
+      setPosts((posts) => [data, ...posts]);
     } catch (error) {
-      showToast("Error", error, "error");
+      showToast("Error", error.message, "error");
     } finally {
-      setLoading(false);
+      setIsPosting(false);
     }
+  };
+
+  const handleEnhancement = (enhancedText) => {
+    setPostText(enhancedText);
+    setRemainingChar(MAX_CHAR - enhancedText.length);
+  };
+
+  const handleModerationResult = (result) => {
+    setIsContentAppropriate(result.isAppropriate);
   };
 
   return (
@@ -100,57 +143,87 @@ const CreatePost = () => {
         <AddIcon />
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
 
         <ModalContent>
           <ModalHeader>Create Post</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl>
-              <Textarea
-                placeholder="Post content goes here.."
-                onChange={handleTextChange}
-                value={postText}
-              />
-              <Text
-                fontSize="xs"
-                fontWeight="bold"
-                textAlign={"right"}
-                m={"1"}
-                color={"gray.800"}
-              >
-                {remainingChar}/{MAX_CHAR}
-              </Text>
+            <Tabs index={tabIndex} onChange={setTabIndex}>
+              <TabList>
+                <Tab>Write Post</Tab>
+                <Tab>AI Enhance</Tab>
+                {/* <Tab>Content Check</Tab> */}
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Post content goes here.."
+                      onChange={handleTextChange}
+                      value={postText}
+                    />
+                    <Text
+                      fontSize="xs"
+                      fontWeight="bold"
+                      textAlign={"right"}
+                      m={"1"}
+                      color={"gray.800"}
+                    >
+                      {remainingChar}/{MAX_CHAR}
+                    </Text>
 
-              <Input
-                type="file"
-                hidden
-                ref={imageRef}
-                onChange={handleImageChange}
-              />
+                    <Input
+                      type="file"
+                      hidden
+                      ref={imageRef}
+                      onChange={handleImageChange}
+                    />
 
-              <BsFillImageFill
-                style={{ marginLeft: "5px", cursor: "pointer" }}
-                size={16}
-                onClick={() => imageRef.current.click()}
-              />
-            </FormControl>
+                    <BsFillImageFill
+                      style={{ marginLeft: "5px", cursor: "pointer" }}
+                      size={16}
+                      onClick={() => imageRef.current.click()}
+                    />
+                  </FormControl>
 
-            {imgUrl && (
-              <Flex mt={5} w={"full"} position={"relative"}>
-                <Image src={imgUrl} alt="Selected img" />
-                <CloseButton
-                  onClick={() => {
-                    setImgUrl("");
-                  }}
-                  bg={"gray.800"}
-                  position={"absolute"}
-                  top={2}
-                  right={2}
-                />
-              </Flex>
-            )}
+                  {imgUrl && (
+                    <Flex mt={5} w={"full"} position={"relative"} flexDirection="column">
+                      <Image src={imgUrl} alt="Selected img" />
+                      <CloseButton
+                        onClick={() => {
+                          setImgUrl("");
+                          setImageCaption("");
+                        }}
+                        bg={"gray.800"}
+                        position={"absolute"}
+                        top={2}
+                        right={2}
+                      />
+                      <Box mt={3}>
+                        <ImageCaption 
+                          imageUrl={imgUrl}
+                          onCaptionGenerated={handleImageCaption} 
+                        />
+                      </Box>
+                    </Flex>
+                  )}
+                </TabPanel>
+                <TabPanel>
+                  <AIEnhancement
+                    onEnhance={handleEnhancement}
+                    initialContent={postText}
+                  />
+                </TabPanel>
+                {/* <TabPanel>
+                  <ContentModeration
+                    content={postText}
+                    onModerationResult={handleModerationResult}
+                  />
+                </TabPanel> */}
+              </TabPanels>
+            </Tabs>
           </ModalBody>
 
           <ModalFooter>
@@ -159,6 +232,7 @@ const CreatePost = () => {
               mr={3}
               onClick={handleCreatePost}
               isLoading={loading}
+              isDisabled={!isContentAppropriate}
             >
               Post
             </Button>

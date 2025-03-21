@@ -12,6 +12,8 @@ import {
   ModalOverlay,
   Spinner,
   useDisclosure,
+  Box,
+  useToast,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { IoSendSharp } from "react-icons/io5";
@@ -23,6 +25,7 @@ import {
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { BsFillImageFill } from "react-icons/bs";
 import usePreviewImg from "../hooks/usePreviewImg";
+
 const MessageInput = ({ setMessages }) => {
   const [messageText, setMessageText] = useState("");
   const showToast = useShowToast();
@@ -32,6 +35,7 @@ const MessageInput = ({ setMessages }) => {
   const { onClose } = useDisclosure();
   const { handleImageChange, imgUrl, setImgUrl } = usePreviewImg();
   const [isSending, setIsSending] = useState(false);
+  const toast = useToast();
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -83,30 +87,34 @@ const MessageInput = ({ setMessages }) => {
       setIsSending(false);
     }
   };
+
   return (
-    <Flex gap={2} alignItems={"center"}>
-      <form onSubmit={handleSendMessage} style={{ flex: 95 }}>
-        <InputGroup>
+    <Box w="100%">
+      <Flex gap={2} alignItems={"center"}>
+        <form onSubmit={handleSendMessage} style={{ flex: 95 }}>
+          <InputGroup>
+            <Input
+              w={"full"}
+              placeholder="Type a message"
+              onChange={(e) => setMessageText(e.target.value)}
+              value={messageText}
+            />
+            <InputRightElement onClick={handleSendMessage} cursor={"pointer"}>
+              <IoSendSharp />
+            </InputRightElement>
+          </InputGroup>
+        </form>
+        <Flex flex={5} cursor={"pointer"}>
+          <BsFillImageFill size={20} onClick={() => imageRef.current.click()} />
           <Input
-            w={"full"}
-            placeholder="Type a message"
-            onChange={(e) => setMessageText(e.target.value)}
-            value={messageText}
+            type={"file"}
+            hidden
+            ref={imageRef}
+            onChange={handleImageChange}
           />
-          <InputRightElement onClick={handleSendMessage} cursor={"pointer"}>
-            <IoSendSharp />
-          </InputRightElement>
-        </InputGroup>
-      </form>
-      <Flex flex={5} cursor={"pointer"}>
-        <BsFillImageFill size={20} onClick={() => imageRef.current.click()} />
-        <Input
-          type={"file"}
-          hidden
-          ref={imageRef}
-          onChange={handleImageChange}
-        />
+        </Flex>
       </Flex>
+
       <Modal
         isOpen={imgUrl}
         onClose={() => {
@@ -136,7 +144,7 @@ const MessageInput = ({ setMessages }) => {
           </ModalBody>
         </ModalContent>
       </Modal>
-    </Flex>
+    </Box>
   );
 };
 

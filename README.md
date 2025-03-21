@@ -1,6 +1,6 @@
 # **Threadio**
 
-Threadio is a modern social media application designed for real-time interactions, allowing users to create and engage with posts, chat in real time, and manage their accounts. Built using the MERN stack, Threadio provides a seamless and interactive user experience with additional features like real-time chat, media handling, and customizable themes.
+Threadio is a modern social media application designed for real-time interactions, allowing users to create and engage with posts, chat in real time, and manage their accounts. Built using the MERN stack, Threadio provides a seamless and interactive user experience with additional features like real-time chat, media handling, customizable themes, and AI-powered capabilities that enhance content creation and user interactions.
 
 ## **Features**
 
@@ -19,6 +19,14 @@ Threadio is a modern social media application designed for real-time interaction
 - 🤔 Forgot Password Functionality
 - ✅ Proper Email Password Validations
 
+## **AI Features**
+
+- 🧠 AI-powered post enhancement
+- 🔍 Content moderation using AI
+- 💡 Smart chat suggestions
+- 📷 Automatic image caption generation
+- 🏷️ Smart hashtag suggestions
+
 ## **Technologies Used**
 
 - **Frontend**: React.js, Chakra UI
@@ -27,6 +35,7 @@ Threadio is a modern social media application designed for real-time interaction
 - **Real-Time Communication**: Socket.io
 - **Authentication**: JSON Web Tokens (JWT)
 - **File Handling**: Cloudinary
+- **AI Processing**: Google Gemini AI
 
 ## **Installation**
 

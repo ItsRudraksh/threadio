@@ -5,14 +5,15 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "set NODE_ENV=development && nodemon server/index.js",
-    "start": "set NODE_ENV=production && node server/index.js",
+    "dev": "nodemon server/index.js",
+    "start": "node server/index.js",
     "build": "npm install && npm install --prefix client && npm run build --prefix client"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.2.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.0",
     "cookie-parser": "^1.4.6",

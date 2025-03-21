@@ -1,6 +1,6 @@
-import { Avatar } from "@chakra-ui/avatar";
-import { Image } from "@chakra-ui/image";
-import { Box, Flex, Text } from "@chakra-ui/layout";
+import { Avatar } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import Actions from "./Actions";
 import { useEffect, useState } from "react";

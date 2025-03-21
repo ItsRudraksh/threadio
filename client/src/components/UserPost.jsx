@@ -1,6 +1,6 @@
-import { Avatar } from "@chakra-ui/avatar";
-import { Image } from "@chakra-ui/image";
-import { Box, Flex, Text } from "@chakra-ui/layout";
+import { Avatar } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { BsThreeDots } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import Actions from "./Actions";
@@ -10,7 +10,7 @@ const UserPost = ({ postImg, postTitle, likes, replies }) => {
   return (
     <Link to={"/markzuckerberg/post/1"}>
       <Flex gap={3} mb={4} py={5}>
-        <Flex flexDirection={"column"} alignItems={"center"}>
+        <Flex flexDirection={"column"} tems={"center"}>
           <Avatar size="md" name="Mark Zuckerberg" src="/zuck-avatar.png" />
           <Box w="1px" h={"full"} bg="gray.light" my={2}></Box>
           <Box position={"relative"} w={"full"}>
