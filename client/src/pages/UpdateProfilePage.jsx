@@ -15,7 +15,9 @@ import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import usePreviewImg from "../hooks/usePreviewImg";
 import useShowToast from "../hooks/useShowToast";
+import { useNavigate } from "react-router-dom";
 const UpdateProfilePage = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useRecoilState(userAtom);
   const [inputs, setInputs] = useState({
     name: user.name,
@@ -51,6 +53,7 @@ const UpdateProfilePage = () => {
       showToast("Success", "Profile updated successfully", "success");
       setUser(data);
       localStorage.setItem("user-threads", JSON.stringify(data));
+      navigate(`/${data.username}`);
     } catch (error) {
       showToast("Error", error, "error");
     } finally {
@@ -59,7 +62,10 @@ const UpdateProfilePage = () => {
   };
   return (
     <form onSubmit={handleSubmit}>
-      <Flex align={"center"} justify={"center"} my={6}>
+      <Flex
+        align={"center"}
+        justify={"center"}
+        my={6}>
         <Stack
           spacing={4}
           w={"full"}
@@ -67,13 +73,16 @@ const UpdateProfilePage = () => {
           bg={useColorModeValue("white", "gray.dark")}
           rounded={"xl"}
           boxShadow={"lg"}
-          p={6}
-        >
-          <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
+          p={6}>
+          <Heading
+            lineHeight={1.1}
+            fontSize={{ base: "2xl", sm: "3xl" }}>
             User Profile Edit
           </Heading>
           <FormControl id="userName">
-            <Stack direction={["column", "row"]} spacing={6}>
+            <Stack
+              direction={["column", "row"]}
+              spacing={6}>
               <Center>
                 <Avatar
                   size="xl"
@@ -82,7 +91,9 @@ const UpdateProfilePage = () => {
                 />
               </Center>
               <Center w="full">
-                <Button w="full" onClick={() => fileRef.current.click()}>
+                <Button
+                  w="full"
+                  onClick={() => fileRef.current.click()}>
                   Change Avatar
                 </Button>
                 <Input
@@ -148,15 +159,16 @@ const UpdateProfilePage = () => {
               type="password"
             />
           </FormControl>
-          <Stack spacing={6} direction={["column", "row"]}>
+          <Stack
+            spacing={6}
+            direction={["column", "row"]}>
             <Button
               bg={"red.400"}
               color={"white"}
               w="full"
               _hover={{
                 bg: "red.500",
-              }}
-            >
+              }}>
               Cancel
             </Button>
             <Button
@@ -167,8 +179,7 @@ const UpdateProfilePage = () => {
                 bg: "green.500",
               }}
               type="submit"
-              isLoading={updating}
-            >
+              isLoading={updating}>
               Submit
             </Button>
           </Stack>

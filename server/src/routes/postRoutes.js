@@ -5,6 +5,7 @@ import {
   getFeedPosts,
   getPost,
   getUserPosts,
+  getUserReplies,
   likeUnlikePost,
   replyToPost,
 } from "../controllers/postController.js";
@@ -19,5 +20,6 @@ router.put("/like/:id", verifyToken, likeUnlikePost);
 router.put("/reply/:id", verifyToken, replyToPost);
 router.get("/:id", getPost);
 router.get("/user/:username", getUserPosts);
+router.get("/user/:username/replies", getUserReplies);
 
 export default router;

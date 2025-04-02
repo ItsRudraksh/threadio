@@ -14,6 +14,9 @@ Threadio is a modern social media application designed for real-time interaction
 - 📱 Fully responsive design
 - 💬 Real-time chat with image support
 - 👀 Seen/unseen status for messages
+- 🗑️ Delete messages with "This message was deleted" indicator
+- 🔍 Context menu for message actions
+- 🚫 Account deletion with Cloudinary cleanup
 - 🔊 Notification sounds
 - 🔏 Two Factor Authentication
 - 🤔 Forgot Password Functionality
@@ -23,9 +26,19 @@ Threadio is a modern social media application designed for real-time interaction
 
 - 🧠 AI-powered post enhancement
 - 🔍 Content moderation using AI
-- 💡 Smart chat suggestions
+- 💡 Smart chat suggestions using the "/ai" command
+- 🤖 AI-powered reply suggestions in chat
 - 📷 Automatic image caption generation
 - 🏷️ Smart hashtag suggestions
+
+## **Cloud Storage**
+
+- 📁 Organized media storage in Cloudinary
+  - Profile pictures stored in `threadio/profileimages`
+  - Message images stored in `threadio/messageimages`
+  - Post images stored in `threadio/postimages`
+- 🗑️ Automatic cleanup of deleted images
+- 🔄 Profile picture updates replace old images
 
 ## **Technologies Used**
 
@@ -36,6 +49,7 @@ Threadio is a modern social media application designed for real-time interaction
 - **Authentication**: JSON Web Tokens (JWT)
 - **File Handling**: Cloudinary
 - **AI Processing**: Google Gemini AI
+- **State Management**: Recoil
 
 ## **Installation**
 
@@ -69,7 +83,20 @@ cd threadio
 
 3. **Create a `.env` File**
 
-   Add your environment variables, including MongoDB URI, JWT secret, Cloudinary credentials, etc.
+   Add your environment variables, including MongoDB URI, JWT secret, Cloudinary credentials, and Gemini AI API key:
+
+   ```
+   PORT=5000
+   MONGODB_URI=your_mongodb_uri
+   JWT_SECRET=your_jwt_secret
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   GEMINI_API_KEY=your_gemini_api_key
+   EMAIL_USER=your_email_for_notifications
+   EMAIL_PASS=your_email_password
+   NODE_ENV=development
+   ```
 
 4. **Start the Server:**
 
@@ -118,6 +145,15 @@ cd threadio
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+## **Recent Updates**
+
+- **Message Deletion**: Messages can now be deleted with a "This message was deleted" indicator
+- **Context Menu**: Added a 3-dot menu for message actions
+- **AI Chat Suggestions**: Type `/ai` to get context-aware message suggestions
+- **Cloudinary Organization**: Media files are now organized in specific folders
+- **Account Management**: Account deletion with proper cleanup of all associated media
+- **Improved Error Handling**: Better error reporting for AI features
+
 ## **Acknowledgments**
 
 - [React.js](https://react.dev/)
@@ -128,5 +164,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - [Socket.io](https://socket.io/)
 - [Cloudinary](https://cloudinary.com/)
 - [JWT](https://jwt.io/)
+- [Google Gemini AI](https://deepmind.google/technologies/gemini/)
 
 ---

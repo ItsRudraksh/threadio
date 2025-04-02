@@ -3,12 +3,14 @@ import Message from "../models/message.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import { getRecipientSocketId, io } from "../config/socket.js";
 import { deleteCloudinaryImage } from "../utils/cloudinary.js";
+import { createNotification } from "./notificationController.js";
+import User from "../models/user.model.js";
 
 export const sendMessage = async (req, res) => {
   try {
     const { recipientId, message } = req.body;
-    let { img } = req.body;
     const senderId = req.user.id;
+    let { img } = req.body;
 
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, recipientId] },
@@ -28,7 +30,6 @@ export const sendMessage = async (req, res) => {
     if (img) {
       const uploadedResponse = await cloudinary.uploader.upload(img, {
         folder: "threadio/messageimages",
-        resource_type: "image",
       });
       img = uploadedResponse.secure_url;
     }
@@ -42,7 +43,7 @@ export const sendMessage = async (req, res) => {
 
     await Promise.all([
       newMessage.save(),
-      conversation.updateOne({
+      Conversation.findByIdAndUpdate(conversation._id, {
         lastMessage: {
           text: message,
           sender: senderId,
@@ -52,12 +53,36 @@ export const sendMessage = async (req, res) => {
 
     const recipientSocketId = getRecipientSocketId(recipientId);
     if (recipientSocketId) {
-      io.to(recipientSocketId).emit("newMessage", newMessage);
+      io.to(recipientSocketId).emit("newMessage", {
+        ...newMessage.toObject(),
+        _id: newMessage._id.toString(),
+        conversationId: conversation._id.toString(),
+        sender: senderId,
+      });
     }
 
-    res.status(201).json(newMessage);
+    // Create notification for the message
+    const sender = await User.findById(senderId);
+    await createNotification(
+      recipientId,
+      senderId,
+      "message",
+      `${sender.username} sent you a message: "${message.substring(0, 30)}${
+        message.length > 30 ? "..." : ""
+      }"`,
+      null,
+      newMessage._id
+    );
+
+    res.status(201).json({
+      ...newMessage.toObject(),
+      _id: newMessage._id.toString(),
+      conversationId: conversation._id.toString(),
+      sender: senderId,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
+    console.log("Error in sendMessage controller: ", error.message);
   }
 };
 

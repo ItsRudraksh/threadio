@@ -7,6 +7,8 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import { RecoilRoot } from "recoil";
 import { SocketContextProvider } from "./context/SocketContext.jsx";
+import { NotificationProvider } from "./context/NotificationContext.jsx";
+
 const styles = {
   global: (props) => ({
     body: {
@@ -37,7 +39,9 @@ createRoot(document.getElementById("root")).render(
         <ChakraProvider theme={theme}>
           <ColorModeScript initialColorMode={theme.config.initialColorMode} />
           <SocketContextProvider>
-            <App />
+            <NotificationProvider>
+              <App />
+            </NotificationProvider>
           </SocketContextProvider>
         </ChakraProvider>
       </BrowserRouter>

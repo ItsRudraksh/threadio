@@ -17,6 +17,8 @@ import useLogout from "../hooks/useLogout";
 import authScreenAtom from "../atoms/authScreenAtom";
 import { BsFillChatQuoteFill } from "react-icons/bs";
 import { MdOutlineSettings } from "react-icons/md";
+import NotificationIcon from "./NotificationIcon";
+
 const Header = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const user = useRecoilValue(userAtom);
@@ -24,16 +26,25 @@ const Header = () => {
   const setAuthScreen = useSetRecoilState(authScreenAtom);
 
   return (
-    <Flex justifyContent={"space-between"} mt={6} mb="12">
+    <Flex
+      justifyContent={"space-between"}
+      mt={6}
+      mb="12">
       {user && (
-        <Flex alignItems={"center"} gap={4}>
+        <Flex
+          alignItems={"center"}
+          gap={4}>
           <Tooltip label="Home">
-            <Link as={RouterLink} to="/">
+            <Link
+              as={RouterLink}
+              to="/">
               <AiFillHome size={24} />
             </Link>
           </Tooltip>
           <Tooltip label="Search">
-            <Link as={RouterLink} to="/search">
+            <Link
+              as={RouterLink}
+              to="/search">
               <SearchIcon size={20} />
             </Link>
           </Tooltip>
@@ -43,8 +54,7 @@ const Header = () => {
         <Link
           as={RouterLink}
           to={"/auth"}
-          onClick={() => setAuthScreen("login")}
-        >
+          onClick={() => setAuthScreen("login")}>
           Login
         </Link>
       )}
@@ -60,24 +70,35 @@ const Header = () => {
       </Tooltip>
 
       {user && (
-        <Flex alignItems={"center"} gap={4}>
+        <Flex
+          alignItems={"center"}
+          gap={4}>
+          <NotificationIcon />
           <Tooltip label="Profile">
-            <Link as={RouterLink} to={`/${user.username}`}>
+            <Link
+              as={RouterLink}
+              to={`/${user.username}`}>
               <RxAvatar size={24} />
             </Link>
           </Tooltip>
           <Tooltip label="Chat">
-            <Link as={RouterLink} to={`/chat`}>
+            <Link
+              as={RouterLink}
+              to={`/chat`}>
               <BsFillChatQuoteFill size={20} />
             </Link>
           </Tooltip>
           <Tooltip label="Settings">
-            <Link as={RouterLink} to={`/settings`}>
+            <Link
+              as={RouterLink}
+              to={`/settings`}>
               <MdOutlineSettings size={20} />
             </Link>
           </Tooltip>
           <Tooltip label="Logout">
-            <Button size={"xs"} onClick={logout}>
+            <Button
+              size={"xs"}
+              onClick={logout}>
               <FiLogOut size={20} />
             </Button>
           </Tooltip>
@@ -88,8 +109,7 @@ const Header = () => {
         <Link
           as={RouterLink}
           to={"/auth"}
-          onClick={() => setAuthScreen("signup")}
-        >
+          onClick={() => setAuthScreen("signup")}>
           Sign up
         </Link>
       )}

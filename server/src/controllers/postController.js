@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import { deleteCloudinaryImage } from "../utils/cloudinary.js";
+import { createNotification } from "./notificationController.js";
 
 export const getPost = async (req, res) => {
   try {
@@ -146,6 +147,19 @@ export const likeUnlikePost = async (req, res) => {
       // Like post
       post.likes.push(userId);
       await post.save();
+
+      // Create notification for post like
+      if (post.postedBy.toString() !== userId) {
+        const user = await User.findById(userId);
+        await createNotification(
+          post.postedBy,
+          userId,
+          "like",
+          `${user.username} liked your post`,
+          postId
+        );
+      }
+
       res.status(200).json({ message: "Post liked successfully" });
     }
   } catch (err) {
@@ -178,8 +192,64 @@ export const replyToPost = async (req, res) => {
     post.replies.push(reply);
     await post.save();
 
+    // Create notification for reply
+    if (post.postedBy.toString() !== userId) {
+      await createNotification(
+        post.postedBy,
+        userId,
+        "reply",
+        `${username} replied to your post: "${text.substring(0, 30)}${
+          text.length > 30 ? "..." : ""
+        }"`,
+        postId
+      );
+    }
+
     res.status(200).json(reply);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const getUserReplies = async (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Find all posts where this user has replied
+    const postsWithReplies = await Post.find({
+      "replies.userId": user._id,
+    }).sort({
+      createdAt: -1,
+    });
+
+    // For each post, filter to only include the user's replies
+    const userReplies = postsWithReplies.map((post) => {
+      // Get the original post data
+      const { _id, text, img, postedBy, createdAt } = post;
+
+      // Filter to only include replies by this user
+      const userReplies = post.replies.filter(
+        (reply) => reply.userId.toString() === user._id.toString()
+      );
+
+      // Return a modified post object with only this user's replies
+      return {
+        _id,
+        text,
+        img,
+        postedBy,
+        createdAt,
+        replies: userReplies,
+        originalPost: true,
+      };
+    });
+
+    res.status(200).json(userReplies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

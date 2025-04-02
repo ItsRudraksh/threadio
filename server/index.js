@@ -7,6 +7,7 @@ import userRoutes from "./src/routes/userRoutes.js";
 import postRoutes from "./src/routes/postRoutes.js";
 import messageRoutes from "./src/routes/messageRoutes.js";
 import aiRoutes from "./src/routes/aiRoutes.js";
+import notificationRoutes from "./src/routes/notificationRoutes.js";
 import { v2 as cloudinary } from "cloudinary";
 import { server, app } from "./src/config/socket.js";
 import { connectToDB } from "./src/config/db.js";
@@ -35,6 +36,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/ai", aiRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
 
 //FOR DEPLOYMENT
 // if (process.env.NODE_ENV === "production") {

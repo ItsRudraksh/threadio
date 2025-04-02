@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  followUnFollowUser,
+  followUnfollow,
   forgotPassword,
   freezeAccount,
   getAllUsers,
@@ -26,7 +26,7 @@ router.post("/verify", verifyUser);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.put("/freeze", verifyToken, freezeAccount);
-router.post("/follow/:id", verifyToken, followUnFollowUser);
+router.post("/follow/:id", verifyToken, followUnfollow);
 router.put("/update/:id", verifyToken, updateUser);
 router.delete("/delete", verifyToken, deleteAccount);
 router.get("/suggested", verifyToken, getSuggestedUsers);

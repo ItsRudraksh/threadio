@@ -24,6 +24,7 @@ import {
   TabPanel,
   Badge,
   Box,
+  Spinner,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import usePreviewImg from "../hooks/usePreviewImg";
@@ -80,7 +81,7 @@ const CreatePost = () => {
     try {
       // First check content moderation
       const moderationResult = await checkContentModeration(postText);
-      
+
       if (!moderationResult.isAppropriate) {
         showToast(
           "Content Warning",
@@ -138,92 +139,119 @@ const CreatePost = () => {
         right={5}
         bg={useColorModeValue("gray.300", "gray.dark")}
         onClick={onOpen}
-        size={{ base: "sm", sm: "md" }}
-      >
+        size={{ base: "sm", sm: "md" }}>
         <AddIcon />
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="xl">
         <ModalOverlay />
 
         <ModalContent>
           <ModalHeader>Create Post</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <Tabs index={tabIndex} onChange={setTabIndex}>
-              <TabList>
-                <Tab>Write Post</Tab>
-                <Tab>AI Enhance</Tab>
-                {/* <Tab>Content Check</Tab> */}
-              </TabList>
-              <TabPanels>
-                <TabPanel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Post content goes here.."
-                      onChange={handleTextChange}
-                      value={postText}
-                    />
-                    <Text
-                      fontSize="xs"
-                      fontWeight="bold"
-                      textAlign={"right"}
-                      m={"1"}
-                      color={"gray.800"}
-                    >
-                      {remainingChar}/{MAX_CHAR}
-                    </Text>
-
-                    <Input
-                      type="file"
-                      hidden
-                      ref={imageRef}
-                      onChange={handleImageChange}
-                    />
-
-                    <BsFillImageFill
-                      style={{ marginLeft: "5px", cursor: "pointer" }}
-                      size={16}
-                      onClick={() => imageRef.current.click()}
-                    />
-                  </FormControl>
-
-                  {imgUrl && (
-                    <Flex mt={5} w={"full"} position={"relative"} flexDirection="column">
-                      <Image src={imgUrl} alt="Selected img" />
-                      <CloseButton
-                        onClick={() => {
-                          setImgUrl("");
-                          setImageCaption("");
-                        }}
-                        bg={"gray.800"}
-                        position={"absolute"}
-                        top={2}
-                        right={2}
+            {isPosting ? (
+              <Flex
+                justifyContent="center"
+                alignItems="center"
+                direction="column"
+                gap={3}
+                my={8}>
+                <Spinner
+                  size="xl"
+                  thickness="4px"
+                  speed="0.65s"
+                  color="blue.500"
+                />
+                <Text fontWeight="medium">Creating your post...</Text>
+              </Flex>
+            ) : (
+              <Tabs
+                index={tabIndex}
+                onChange={setTabIndex}>
+                <TabList>
+                  <Tab>Write Post</Tab>
+                  <Tab>AI Enhance</Tab>
+                  {/* <Tab>Content Check</Tab> */}
+                </TabList>
+                <TabPanels>
+                  <TabPanel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Post content goes here.."
+                        onChange={handleTextChange}
+                        value={postText}
                       />
-                      <Box mt={3}>
-                        <ImageCaption 
-                          imageUrl={imgUrl}
-                          onCaptionGenerated={handleImageCaption} 
+                      <Text
+                        fontSize="xs"
+                        fontWeight="bold"
+                        textAlign={"right"}
+                        m={"1"}
+                        color={"gray.800"}>
+                        {remainingChar}/{MAX_CHAR}
+                      </Text>
+
+                      <Input
+                        type="file"
+                        hidden
+                        ref={imageRef}
+                        onChange={handleImageChange}
+                      />
+
+                      <BsFillImageFill
+                        style={{ marginLeft: "5px", cursor: "pointer" }}
+                        size={16}
+                        onClick={() => imageRef.current.click()}
+                      />
+                    </FormControl>
+
+                    {imgUrl && (
+                      <Flex
+                        mt={5}
+                        w={"full"}
+                        position={"relative"}
+                        flexDirection="column">
+                        <Image
+                          src={imgUrl}
+                          alt="Selected img"
                         />
-                      </Box>
-                    </Flex>
-                  )}
-                </TabPanel>
-                <TabPanel>
-                  <AIEnhancement
-                    onEnhance={handleEnhancement}
-                    initialContent={postText}
-                  />
-                </TabPanel>
-                {/* <TabPanel>
-                  <ContentModeration
-                    content={postText}
-                    onModerationResult={handleModerationResult}
-                  />
-                </TabPanel> */}
-              </TabPanels>
-            </Tabs>
+                        <CloseButton
+                          onClick={() => {
+                            setImgUrl("");
+                            setImageCaption("");
+                          }}
+                          bg={"gray.800"}
+                          position={"absolute"}
+                          top={2}
+                          right={2}
+                        />
+                        <Box mt={3}>
+                          <ImageCaption
+                            imageUrl={imgUrl}
+                            onCaptionGenerated={handleImageCaption}
+                          />
+                        </Box>
+                      </Flex>
+                    )}
+                  </TabPanel>
+                  <TabPanel>
+                    <AIEnhancement
+                      onEnhance={handleEnhancement}
+                      initialContent={postText}
+                    />
+                  </TabPanel>
+                  {/* <TabPanel>
+                    <ContentModeration
+                      content={postText}
+                      onModerationResult={handleModerationResult}
+                    />
+                  </TabPanel> */}
+                </TabPanels>
+              </Tabs>
+            )}
           </ModalBody>
 
           <ModalFooter>
@@ -231,9 +259,11 @@ const CreatePost = () => {
               colorScheme="blue"
               mr={3}
               onClick={handleCreatePost}
-              isLoading={loading}
-              isDisabled={!isContentAppropriate}
-            >
+              isLoading={isPosting}
+              loadingText="Posting"
+              isDisabled={
+                (!postText && !imgUrl) || isPosting || !isContentAppropriate
+              }>
               Post
             </Button>
           </ModalFooter>

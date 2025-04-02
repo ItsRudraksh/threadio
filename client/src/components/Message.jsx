@@ -1,6 +1,13 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Avatar,
   Box,
+  Button,
   Flex,
   IconButton,
   Image,
@@ -11,13 +18,14 @@ import {
   Portal,
   Skeleton,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { BsCheck2All, BsTrash } from "react-icons/bs";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useSocket } from "../context/SocketContext";
 
@@ -26,13 +34,20 @@ const Message = ({ ownMessage, message, onDelete }) => {
   const user = useRecoilValue(userAtom);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef();
   const showToast = useShowToast();
   const { socket } = useSocket();
 
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this message?"))
-      return;
+  const handleDeleteClick = () => {
+    onOpen();
+  };
 
+  const handleDelete = async () => {
+    if (isDeleting) return;
+
+    setIsDeleting(true);
     try {
       const res = await fetch(`/api/v1/messages/${message._id}`, {
         method: "DELETE",
@@ -57,6 +72,9 @@ const Message = ({ ownMessage, message, onDelete }) => {
       showToast("Success", "Message deleted", "success");
     } catch (error) {
       showToast("Error", error.message, "error");
+    } finally {
+      setIsDeleting(false);
+      onClose();
     }
   };
 
@@ -137,7 +155,7 @@ const Message = ({ ownMessage, message, onDelete }) => {
                   icon={<BsTrash />}
                   color="red.400"
                   _hover={{ bg: "gray.600" }}
-                  onClick={handleDelete}>
+                  onClick={handleDeleteClick}>
                   Delete
                 </MenuItem>
               </MenuList>
@@ -254,6 +272,46 @@ const Message = ({ ownMessage, message, onDelete }) => {
           )}
         </Flex>
       )}
+
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isCentered>
+        <AlertDialogOverlay>
+          <AlertDialogContent
+            bg="gray.dark"
+            borderColor="gray.light">
+            <AlertDialogHeader
+              fontSize="lg"
+              fontWeight="bold">
+              Delete Message
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this message? This action cannot
+              be undone.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button
+                ref={cancelRef}
+                onClick={onClose}
+                variant="outline">
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={handleDelete}
+                ml={3}
+                isLoading={isDeleting}
+                loadingText="Deleting">
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </>
   );
 };
