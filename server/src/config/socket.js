@@ -8,11 +8,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const app = express();
-app.use(cors({ credentials: true, origin: `${CLIENT_URL}` }));
+app.use(cors({ credentials: true, origin: `${process.env.CLIENT_URL}` }));
 export const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
-    origin: `${CLIENT_URL}`,
+    origin: `${process.env.CLIENT_URL}`,
     methods: ["GET", "POST"],
   },
 });

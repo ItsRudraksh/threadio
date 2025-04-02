@@ -30,7 +30,7 @@ cloudinary.config({
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: `${CLIENT_URL}` }));
+app.use(cors({ credentials: true, origin: `${process.env.CLIENT_URL}` }));
 // app.use(express.static(path.join(__dirname, "../client/dist"))); //FOR DEPLOYMENT
 
 app.use("/api/v1/users", userRoutes);

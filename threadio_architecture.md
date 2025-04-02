@@ -37,7 +37,7 @@ flowchart TD
     end
 
     %% Message Management section
-    subgraph "Message Management"
+    subgraph MessageManagement["Message Management"]
         SingleMsg("Single Message\nDeletion")
         BulkMsg("Bulk Message\nClearing")
         MediaCleanup("Media Files\nCleanup")
@@ -64,11 +64,11 @@ flowchart TD
     Backend --- Models
     Backend --- Auth
 
-    Controllers --> "Message Management"
-    "Message Management" --> SingleMsg
-    "Message Management" --> BulkMsg
+    Controllers --> MessageManagement
+    MessageManagement --> SingleMsg
+    MessageManagement --> BulkMsg
     BulkMsg --> MediaCleanup
-    "Message Management" --> RTSync
+    MessageManagement --> RTSync
     RTSync --> SocketIO
     MediaCleanup --> Cloudinary
 
