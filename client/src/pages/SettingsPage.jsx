@@ -1,8 +1,9 @@
-import { Button, Text } from "@chakra-ui/react";
+import { Button, Text, VStack, Divider, Box, Heading } from "@chakra-ui/react";
 import useShowToast from "../hooks/useShowToast";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
+
 const SettingsPage = () => {
   const showToast = useShowToast();
   const navigate = useNavigate();
@@ -35,16 +36,94 @@ const SettingsPage = () => {
     }
   };
 
+  const deleteAccount = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to permanently delete your account? This action cannot be undone."
+      )
+    )
+      return;
+
+    if (
+      !window.confirm(
+        "All your posts and data will be deleted. This is irreversible. Proceed?"
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch("/api/v1/users/delete", {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        return showToast("Error", data.error, "error");
+      }
+
+      localStorage.removeItem("user-threads");
+      setUser(null);
+      showToast(
+        "Success",
+        "Your account has been permanently deleted",
+        "success"
+      );
+      navigate("/auth");
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    }
+  };
+
   return (
-    <>
-      <Text my={1} fontWeight={"bold"}>
-        Freeze Your Account
-      </Text>
-      <Text my={1}>You can unfreeze your account anytime by logging in.</Text>
-      <Button size={"sm"} colorScheme="red" onClick={freezeAccount}>
-        Freeze
-      </Button>
-    </>
+    <VStack
+      spacing={6}
+      align="start"
+      w="full"
+      py={4}>
+      <Heading size="lg">Account Settings</Heading>
+
+      <Box w="full">
+        <Heading
+          size="md"
+          mb={2}>
+          Freeze Account
+        </Heading>
+        <Text my={1}>
+          Temporarily freeze your account. You can unfreeze your account anytime
+          by logging in.
+        </Text>
+        <Button
+          size={"sm"}
+          colorScheme="blue"
+          onClick={freezeAccount}
+          mt={2}>
+          Freeze Account
+        </Button>
+      </Box>
+
+      <Divider />
+
+      <Box w="full">
+        <Heading
+          size="md"
+          mb={2}
+          color="red.500">
+          Delete Account
+        </Heading>
+        <Text my={1}>
+          Permanently delete your account and all associated data. This action
+          cannot be undone.
+        </Text>
+        <Button
+          size={"sm"}
+          colorScheme="red"
+          onClick={deleteAccount}
+          mt={2}>
+          Delete Account
+        </Button>
+      </Box>
+    </VStack>
   );
 };
 

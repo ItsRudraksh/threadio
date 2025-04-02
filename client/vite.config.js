@@ -8,14 +8,13 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
-    port: 3000,
     // Get rid of the CORS error
     proxy: {
       "/api": {
-        // target: "http://localhost:5000",
-        target: "https://threadio.onrender.com",
+        target: "http://localhost:5000",
         changeOrigin: true,
         secure: false,
+        // target: "https://threadio.onrender.com",
       },
     },
   },

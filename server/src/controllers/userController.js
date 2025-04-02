@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
+import Message from "../models/message.model.js";
+import Conversation from "../models/conversation.model.js";
 import bcrypt from "bcryptjs";
 import { generateTokenAndSetCookie } from "../utils/token.js";
 import { v2 as cloudinary } from "cloudinary";
@@ -8,6 +10,7 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 import sendEmail from "../config/mail.js";
 import { isValidEmail, isValidPassword } from "../utils/validation.js";
+import { deleteCloudinaryImage } from "../utils/cloudinary.js";
 
 export const signupUser = async (req, res) => {
   try {
@@ -327,12 +330,13 @@ export const updateUser = async (req, res) => {
 
     if (profilePic) {
       if (user.profilePic) {
-        await cloudinary.uploader.destroy(
-          user.profilePic.split("/").pop().split(".")[0]
-        );
+        await deleteCloudinaryImage(user.profilePic);
       }
 
-      const uploadedResponse = await cloudinary.uploader.upload(profilePic);
+      const uploadedResponse = await cloudinary.uploader.upload(profilePic, {
+        folder: "threadio/profileimages",
+        resource_type: "image",
+      });
       profilePic = uploadedResponse.secure_url;
     }
 
@@ -472,5 +476,85 @@ export const getAllUsers = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log("Error in getAllUsers: ", error.message);
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Delete profile picture from Cloudinary if it exists
+    if (user.profilePic) {
+      await deleteCloudinaryImage(user.profilePic);
+    }
+
+    // Find all posts by the user
+    const userPosts = await Post.find({ postedBy: userId });
+
+    // Delete all post images from Cloudinary
+    const deletePostPromises = userPosts.map(async (post) => {
+      if (post.img) {
+        await deleteCloudinaryImage(post.img);
+      }
+      // Delete the post
+      return Post.findByIdAndDelete(post._id);
+    });
+
+    // Find all conversations that the user is part of
+    const conversations = await Conversation.find({
+      participants: userId,
+    });
+
+    // Get all conversation IDs
+    const conversationIds = conversations.map((conv) => conv._id);
+
+    // Find all messages in these conversations that have images
+    const messages = await Message.find({
+      conversationId: { $in: conversationIds },
+      sender: userId,
+      img: { $ne: "" },
+    });
+
+    // Delete all message images from Cloudinary
+    const deleteMessagePromises = messages.map(async (message) => {
+      if (message.img) {
+        await deleteCloudinaryImage(message.img);
+      }
+    });
+
+    // Delete conversations
+    const deleteConversationPromises = conversationIds.map((id) =>
+      Conversation.findByIdAndDelete(id)
+    );
+
+    // Delete messages
+    const deleteAllMessagesPromises = conversationIds.map((id) =>
+      Message.deleteMany({ conversationId: id })
+    );
+
+    // Execute all deletion promises
+    await Promise.all([
+      ...deletePostPromises,
+      ...deleteMessagePromises,
+      ...deleteConversationPromises,
+      ...deleteAllMessagesPromises,
+    ]);
+
+    // Delete the user account
+    await User.findByIdAndDelete(userId);
+
+    // Clear authentication cookie
+    res.cookie("jwt", "", { maxAge: 1 });
+
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+    console.log("Error in deleteAccount: ", err.message);
   }
 };

@@ -13,6 +13,7 @@ import {
   signupUser,
   updateUser,
   verifyUser,
+  deleteAccount,
 } from "../controllers/userController.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 
@@ -27,6 +28,7 @@ router.post("/reset-password/:token", resetPassword);
 router.put("/freeze", verifyToken, freezeAccount);
 router.post("/follow/:id", verifyToken, followUnFollowUser);
 router.put("/update/:id", verifyToken, updateUser);
+router.delete("/delete", verifyToken, deleteAccount);
 router.get("/suggested", verifyToken, getSuggestedUsers);
 router.get("/profile/:query", getUserProfile);
 router.get(

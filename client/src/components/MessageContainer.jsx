@@ -62,6 +62,28 @@ const MessageContainer = () => {
     return () => socket.off("newMessage");
   }, [socket, selectedConversation, setConversations]);
 
+  // Listen for messageDeleted events from socket
+  useEffect(() => {
+    socket.on("messageDeleted", ({ messageId }) => {
+      // Instead of removing the message, mark it as deleted
+      setMessages((prev) =>
+        prev.map((message) => {
+          if (message._id === messageId) {
+            return {
+              ...message,
+              deleted: true,
+              text: "This message was deleted",
+              img: "",
+            };
+          }
+          return message;
+        })
+      );
+    });
+
+    return () => socket.off("messageDeleted");
+  }, [socket]);
+
   useEffect(() => {
     const lastMessageIsFromOtherUser =
       messages.length &&
@@ -120,20 +142,56 @@ const MessageContainer = () => {
     getMessages();
   }, [showToast, selectedConversation.userId, selectedConversation.mock]);
 
+  // Handler for deleting messages
+  const handleDeleteMessage = (messageId, markAsDeleted = false) => {
+    if (markAsDeleted) {
+      setMessages((prev) =>
+        prev.map((message) => {
+          if (message._id === messageId) {
+            return {
+              ...message,
+              deleted: true,
+              text: "This message was deleted",
+              img: "",
+            };
+          }
+          return message;
+        })
+      );
+    } else {
+      setMessages((prev) =>
+        prev.filter((message) => message._id !== messageId)
+      );
+    }
+  };
+
   return (
     <Flex
       flex="70"
       bg={useColorModeValue("gray.200", "gray.dark")}
       borderRadius={"md"}
       p={2}
-      flexDirection={"column"}
-    >
+      flexDirection={"column"}>
       {/* Message header */}
-      <Flex w={"full"} h={12} alignItems={"center"} gap={2}>
-        <Avatar src={selectedConversation.userProfilePic} size={"sm"} />
-        <Text display={"flex"} alignItems={"center"}>
+      <Flex
+        w={"full"}
+        h={12}
+        alignItems={"center"}
+        gap={2}>
+        <Avatar
+          src={selectedConversation.userProfilePic}
+          size={"sm"}
+        />
+        <Text
+          display={"flex"}
+          alignItems={"center"}>
           {selectedConversation.username}{" "}
-          <Image src="/verified.png" w={4} h={4} ml={1} />
+          <Image
+            src="/verified.png"
+            w={4}
+            h={4}
+            ml={1}
+          />
         </Text>
       </Flex>
 
@@ -145,8 +203,7 @@ const MessageContainer = () => {
         my={4}
         p={2}
         height={"400px"}
-        overflowY={"auto"}
-      >
+        overflowY={"auto"}>
         {loadingMessages &&
           [...Array(5)].map((_, i) => (
             <Flex
@@ -155,13 +212,23 @@ const MessageContainer = () => {
               alignItems={"center"}
               p={1}
               borderRadius={"md"}
-              alignSelf={i % 2 === 0 ? "flex-start" : "flex-end"}
-            >
+              alignSelf={i % 2 === 0 ? "flex-start" : "flex-end"}>
               {i % 2 === 0 && <SkeletonCircle size={7} />}
-              <Flex flexDir={"column"} gap={2}>
-                <Skeleton h="8px" w="250px" />
-                <Skeleton h="8px" w="250px" />
-                <Skeleton h="8px" w="250px" />
+              <Flex
+                flexDir={"column"}
+                gap={2}>
+                <Skeleton
+                  h="8px"
+                  w="250px"
+                />
+                <Skeleton
+                  h="8px"
+                  w="250px"
+                />
+                <Skeleton
+                  h="8px"
+                  w="250px"
+                />
               </Flex>
               {i % 2 !== 0 && <SkeletonCircle size={7} />}
             </Flex>
@@ -176,17 +243,20 @@ const MessageContainer = () => {
                 messages.length - 1 === messages.indexOf(message)
                   ? messageEndRef
                   : null
-              }
-            >
+              }>
               <Message
                 message={message}
                 ownMessage={currentUser._id === message.sender}
+                onDelete={handleDeleteMessage}
               />
             </Flex>
           ))}
       </Flex>
 
-      <MessageInput setMessages={setMessages} messages={messages} />
+      <MessageInput
+        setMessages={setMessages}
+        messages={messages}
+      />
     </Flex>
   );
 };

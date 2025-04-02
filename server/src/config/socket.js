@@ -8,9 +8,9 @@ export const app = express();
 export const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
-    // origin: "http://localhost:3000",
-    origin: "https://threadio.onrender.com", // FOR DEPLOYMENT
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
+    // origin: "https://threadio.onrender.com", // FOR DEPLOYMENT
   },
 });
 
@@ -40,6 +40,17 @@ io.on("connection", (socket) => {
       io.to(userSocketMap[userId]).emit("messagesSeen", { conversationId });
     } catch (error) {
       console.log(error);
+    }
+  });
+
+  socket.on("messageDeleted", ({ messageId, recipientId }) => {
+    try {
+      const recipientSocketId = userSocketMap[recipientId];
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("messageDeleted", messageId);
+      }
+    } catch (error) {
+      console.log("Error in messageDeleted socket event:", error);
     }
   });
 

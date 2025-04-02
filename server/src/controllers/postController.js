@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 import { v2 as cloudinary } from "cloudinary";
+import { deleteCloudinaryImage } from "../utils/cloudinary.js";
 
 export const getPost = async (req, res) => {
   try {
@@ -83,7 +84,10 @@ export const createPost = async (req, res) => {
     }
 
     if (img) {
-      const uploadedResponse = await cloudinary.uploader.upload(img);
+      const uploadedResponse = await cloudinary.uploader.upload(img, {
+        folder: "threadio/postimages",
+        resource_type: "image",
+      });
       img = uploadedResponse.secure_url;
     }
 
@@ -108,9 +112,9 @@ export const deletePost = async (req, res) => {
       return res.status(401).json({ error: "Unauthorized to delete post" });
     }
 
+    // Delete image from Cloudinary if it exists
     if (post.img) {
-      const imgId = post.img.split("/").pop().split(".")[0];
-      await cloudinary.uploader.destroy(imgId);
+      await deleteCloudinaryImage(post.img);
     }
 
     await Post.findByIdAndDelete(req.params.id);

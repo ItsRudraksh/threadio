@@ -2,6 +2,7 @@ import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import { getRecipientSocketId, io } from "../config/socket.js";
+import { deleteCloudinaryImage } from "../utils/cloudinary.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -25,7 +26,10 @@ export const sendMessage = async (req, res) => {
     }
 
     if (img) {
-      const uploadedResponse = await cloudinary.uploader.upload(img);
+      const uploadedResponse = await cloudinary.uploader.upload(img, {
+        folder: "threadio/messageimages",
+        resource_type: "image",
+      });
       img = uploadedResponse.secure_url;
     }
 
@@ -98,5 +102,63 @@ export const getConversations = async (req, res) => {
     res.status(200).json(conversations);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user.id;
+
+    // Find the message
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    // Check if the user is the sender of the message
+    if (message.sender.toString() !== userId) {
+      return res
+        .status(403)
+        .json({ error: "You can only delete your own messages" });
+    }
+
+    // Delete the image from Cloudinary if present
+    if (message.img) {
+      await deleteCloudinaryImage(message.img);
+      // Remove the image reference
+      message.img = "";
+    }
+
+    // Instead of deleting the message, mark it as deleted
+    message.deleted = true;
+    message.text = "This message was deleted";
+
+    // Save the updated message
+    await message.save();
+
+    // Notify the recipient about the deleted message
+    const conversation = await Conversation.findById(message.conversationId);
+    if (conversation) {
+      const recipientId = conversation.participants.find(
+        (participant) => participant.toString() !== userId
+      );
+
+      if (recipientId) {
+        const recipientSocketId = getRecipientSocketId(recipientId);
+        if (recipientSocketId) {
+          io.to(recipientSocketId).emit("messageDeleted", {
+            messageId,
+            isDeleted: true,
+          });
+        }
+      }
+    }
+
+    res.status(200).json({ message: "Message deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in deleteMessage:", error.message);
   }
 };
