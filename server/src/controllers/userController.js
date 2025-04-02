@@ -489,6 +489,30 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+export const searchUsers = async (req, res) => {
+  try {
+    const { search } = req.query;
+
+    if (!search) {
+      return res.status(400).json({ error: "Search query is required" });
+    }
+
+    const users = await User.find({
+      $or: [
+        { username: { $regex: search, $options: "i" } },
+        { name: { $regex: search, $options: "i" } },
+      ],
+    })
+      .select("username name profilePic")
+      .limit(10);
+
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in searchUsers: ", error.message);
+  }
+};
+
 export const deleteAccount = async (req, res) => {
   try {
     const userId = req.user.id;

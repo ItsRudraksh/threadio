@@ -20,6 +20,11 @@ const messageSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    sharedPost: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+      default: null,
+    },
   },
   { timestamps: true }
 );

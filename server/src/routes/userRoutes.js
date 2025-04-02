@@ -14,6 +14,7 @@ import {
   updateUser,
   verifyUser,
   deleteAccount,
+  searchUsers,
 } from "../controllers/userController.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 
@@ -37,5 +38,6 @@ router.get(
   getFollowersAndFollowing
 );
 router.get("/", getAllUsers);
+router.get("/search", verifyToken, searchUsers);
 
 export default router;

@@ -21,6 +21,9 @@ Threadio is a modern social media application designed for real-time interaction
 - 🔏 Two Factor Authentication
 - 🤔 Forgot Password Functionality
 - ✅ Proper Email Password Validations
+- 🔔 Comprehensive notification management
+- 🔄 Post sharing to direct messages
+- 🧠 Context-aware notification display
 
 ## **AI Features**
 
@@ -147,6 +150,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## **Recent Updates**
 
+- **Post Sharing**: Share posts directly to chat conversations with personalized messages
+- **Enhanced Notifications**: Clear all notifications with a single click
+- **Smart Notification Display**: Chat notifications are filtered when viewing the chat page
 - **Message Deletion**: Messages can now be deleted with a "This message was deleted" indicator
 - **Context Menu**: Added a 3-dot menu for message actions
 - **AI Chat Suggestions**: Type `/ai` to get context-aware message suggestions

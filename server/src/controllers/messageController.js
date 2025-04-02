@@ -11,6 +11,7 @@ export const sendMessage = async (req, res) => {
     const { recipientId, message } = req.body;
     const senderId = req.user.id;
     let { img } = req.body;
+    const { sharedPostId } = req.body;
 
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, recipientId] },
@@ -20,7 +21,7 @@ export const sendMessage = async (req, res) => {
       conversation = new Conversation({
         participants: [senderId, recipientId],
         lastMessage: {
-          text: message,
+          text: sharedPostId ? "Shared a post" : message,
           sender: senderId,
         },
       });
@@ -37,24 +38,42 @@ export const sendMessage = async (req, res) => {
     const newMessage = new Message({
       conversationId: conversation._id,
       sender: senderId,
-      text: message,
+      text: message || "",
       img: img || "",
+      sharedPost: sharedPostId || null,
     });
 
     await Promise.all([
       newMessage.save(),
       Conversation.findByIdAndUpdate(conversation._id, {
         lastMessage: {
-          text: message,
+          text: sharedPostId ? "Shared a post" : message,
           sender: senderId,
         },
       }),
     ]);
 
     const recipientSocketId = getRecipientSocketId(recipientId);
+
+    // Populate shared post information before sending to client
+    let populatedMessage = await Message.findById(newMessage._id);
+
+    if (sharedPostId) {
+      populatedMessage = await Message.findById(newMessage._id).populate({
+        path: "sharedPost",
+        select: "text img postedBy createdAt",
+        populate: {
+          path: "postedBy",
+          select: "username name profilePic",
+        },
+      });
+    }
+
+    const messageToSend = populatedMessage.toObject();
+
     if (recipientSocketId) {
       io.to(recipientSocketId).emit("newMessage", {
-        ...newMessage.toObject(),
+        ...messageToSend,
         _id: newMessage._id.toString(),
         conversationId: conversation._id.toString(),
         sender: senderId,
@@ -63,19 +82,24 @@ export const sendMessage = async (req, res) => {
 
     // Create notification for the message
     const sender = await User.findById(senderId);
+
+    const notificationText = sharedPostId
+      ? `${sender.username} shared a post with you`
+      : `${sender.username} sent you a message: "${message?.substring(0, 30)}${
+          message?.length > 30 ? "..." : ""
+        }"`;
+
     await createNotification(
       recipientId,
       senderId,
       "message",
-      `${sender.username} sent you a message: "${message.substring(0, 30)}${
-        message.length > 30 ? "..." : ""
-      }"`,
-      null,
+      notificationText,
+      sharedPostId,
       newMessage._id
     );
 
     res.status(201).json({
-      ...newMessage.toObject(),
+      ...messageToSend,
       _id: newMessage._id.toString(),
       conversationId: conversation._id.toString(),
       sender: senderId,
@@ -100,7 +124,16 @@ export const getMessages = async (req, res) => {
 
     const messages = await Message.find({
       conversationId: conversation._id,
-    }).sort({ createdAt: 1 });
+    })
+      .populate({
+        path: "sharedPost",
+        select: "text img postedBy createdAt",
+        populate: {
+          path: "postedBy",
+          select: "username name profilePic",
+        },
+      })
+      .sort({ createdAt: 1 });
 
     res.status(200).json(messages);
   } catch (error) {
@@ -159,6 +192,7 @@ export const deleteMessage = async (req, res) => {
     // Instead of deleting the message, mark it as deleted
     message.deleted = true;
     message.text = "This message was deleted";
+    message.sharedPost = null;
 
     // Save the updated message
     await message.save();
