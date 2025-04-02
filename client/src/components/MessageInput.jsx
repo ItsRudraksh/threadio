@@ -66,12 +66,16 @@ const MessageInput = ({ setMessages, messages }) => {
     setLoadingAiSuggestions(true);
 
     try {
-      const res = await fetch(`/api/v1/ai/chat-suggestions/${selectedConversation._id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json"
+      const res = await fetch(
+        `http://localhost:5000/api/v1/ai/chat-suggestions/${selectedConversation._id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
         }
-      });
+      );
 
       const data = await res.json();
       if (data.error) {
@@ -106,7 +110,7 @@ const MessageInput = ({ setMessages, messages }) => {
     setIsSending(true);
 
     try {
-      const res = await fetch("/api/v1/messages", {
+      const res = await fetch("http://localhost:5000/api/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -116,6 +120,7 @@ const MessageInput = ({ setMessages, messages }) => {
           recipientId: selectedConversation.userId,
           img: imgUrl,
         }),
+        credentials: "include",
       });
       const data = await res.json();
       if (data.error) {
@@ -164,16 +169,20 @@ const MessageInput = ({ setMessages, messages }) => {
   return (
     <Box w="100%">
       {isAiCommandActive && (
-        <VStack 
-          mb={4} 
-          p={3} 
-          bg="gray.700" 
-          borderRadius="md" 
-          spacing={3} 
-          align="stretch"
-        >
-          <Flex justify="space-between" align="center">
-            <Text fontWeight="bold" fontSize="sm" color="gray.200">
+        <VStack
+          mb={4}
+          p={3}
+          bg="gray.700"
+          borderRadius="md"
+          spacing={3}
+          align="stretch">
+          <Flex
+            justify="space-between"
+            align="center">
+            <Text
+              fontWeight="bold"
+              fontSize="sm"
+              color="gray.200">
               AI Suggestions
             </Text>
             <IconButton
@@ -191,14 +200,24 @@ const MessageInput = ({ setMessages, messages }) => {
           </Flex>
 
           {loadingAiSuggestions ? (
-            <Flex justify="center" py={2}>
-              <Spinner size="sm" color="blue.400" />
-              <Text ml={2} fontSize="sm" color="gray.400">
+            <Flex
+              justify="center"
+              py={2}>
+              <Spinner
+                size="sm"
+                color="blue.400"
+              />
+              <Text
+                ml={2}
+                fontSize="sm"
+                color="gray.400">
                 Generating suggestions...
               </Text>
             </Flex>
           ) : (
-            <VStack spacing={2} align="stretch">
+            <VStack
+              spacing={2}
+              align="stretch">
               {aiSuggestions.map((suggestion, index) => (
                 <Button
                   key={index}
@@ -212,15 +231,20 @@ const MessageInput = ({ setMessages, messages }) => {
                   px={3}
                   borderColor="gray.600"
                   _hover={{ bg: "gray.600" }}
-                  onClick={() => handleSelectSuggestion(suggestion)}
-                >
-                  <Text fontSize="sm" color="gray.200" noOfLines={2}>
+                  onClick={() => handleSelectSuggestion(suggestion)}>
+                  <Text
+                    fontSize="sm"
+                    color="gray.200"
+                    noOfLines={2}>
                     {suggestion}
                   </Text>
                 </Button>
               ))}
               {aiSuggestions.length === 0 && !loadingAiSuggestions && (
-                <Text fontSize="sm" color="gray.400" textAlign="center">
+                <Text
+                  fontSize="sm"
+                  color="gray.400"
+                  textAlign="center">
                   No suggestions available. Try again later.
                 </Text>
               )}
@@ -229,8 +253,12 @@ const MessageInput = ({ setMessages, messages }) => {
         </VStack>
       )}
 
-      <Flex gap={2} alignItems={"center"}>
-        <form onSubmit={handleSendMessage} style={{ flex: 90 }}>
+      <Flex
+        gap={2}
+        alignItems={"center"}>
+        <form
+          onSubmit={handleSendMessage}
+          style={{ flex: 90 }}>
           <InputGroup>
             <Input
               w={"full"}
@@ -238,12 +266,16 @@ const MessageInput = ({ setMessages, messages }) => {
               onChange={(e) => setMessageText(e.target.value)}
               value={messageText}
             />
-            <InputRightElement onClick={handleSendMessage} cursor={"pointer"}>
+            <InputRightElement
+              onClick={handleSendMessage}
+              cursor={"pointer"}>
               <IoSendSharp />
             </InputRightElement>
           </InputGroup>
         </form>
-        <Flex flex={5} gap={2}>
+        <Flex
+          flex={5}
+          gap={2}>
           <IconButton
             aria-label="AI suggestions"
             icon={<MdSmartToy />}
@@ -271,17 +303,20 @@ const MessageInput = ({ setMessages, messages }) => {
         onClose={() => {
           onClose();
           setImgUrl("");
-        }}
-      >
+        }}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader></ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Flex mt={5} w={"full"}>
+            <Flex
+              mt={5}
+              w={"full"}>
               <Image src={imgUrl} />
             </Flex>
-            <Flex justifyContent={"flex-end"} my={2}>
+            <Flex
+              justifyContent={"flex-end"}
+              my={2}>
               {!isSending ? (
                 <IoSendSharp
                   size={24}

@@ -25,7 +25,10 @@ const FollowersAndFollowing = () => {
     const fetchConnections = async () => {
       try {
         const res = await fetch(
-          `/api/v1/users/${username}/followers&following`
+          `http://localhost:5000/api/v1/users/${username}/followers&following`,
+          {
+            credentials: "include",
+          }
         );
         const fetchedData = await res.json();
         setData(fetchedData);
@@ -60,7 +63,9 @@ const FollowersAndFollowing = () => {
 
   return (
     <Tabs w={"full"}>
-      <TabList w={"full"} mb={2}>
+      <TabList
+        w={"full"}
+        mb={2}>
         <Tab w={"50%"}>Followers</Tab>
         <Tab w={"50%"}>Following</Tab>
       </TabList>

@@ -38,11 +38,15 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/users/reset-password/${token}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/v1/users/reset-password/${token}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password }),
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
@@ -85,8 +89,7 @@ const ResetPassword = () => {
       p={8}
       rounded="lg"
       boxShadow="lg"
-      bg={useColorModeValue("white", "gray.800")}
-    >
+      bg={useColorModeValue("white", "gray.800")}>
       <Stack spacing={4}>
         <FormControl isRequired>
           <FormLabel>New Password</FormLabel>
@@ -100,8 +103,9 @@ const ResetPassword = () => {
             <InputRightElement h={"full"}>
               <Button
                 variant={"ghost"}
-                onClick={() => setShowPassword((showPassword) => !showPassword)}
-              >
+                onClick={() =>
+                  setShowPassword((showPassword) => !showPassword)
+                }>
                 {showPassword ? <ViewIcon /> : <ViewOffIcon />}
               </Button>
             </InputRightElement>
@@ -119,8 +123,9 @@ const ResetPassword = () => {
             <InputRightElement h={"full"}>
               <Button
                 variant={"ghost"}
-                onClick={() => setShowPassword((showPassword) => !showPassword)}
-              >
+                onClick={() =>
+                  setShowPassword((showPassword) => !showPassword)
+                }>
                 {showPassword ? <ViewIcon /> : <ViewOffIcon />}
               </Button>
             </InputRightElement>
@@ -130,8 +135,7 @@ const ResetPassword = () => {
           isLoading={loading}
           loadingText="Resetting..."
           colorScheme="blue"
-          onClick={handleResetPassword}
-        >
+          onClick={handleResetPassword}>
           Reset Password
         </Button>
       </Stack>

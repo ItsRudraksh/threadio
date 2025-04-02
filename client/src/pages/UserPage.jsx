@@ -25,7 +25,12 @@ const UserPage = () => {
       if (!user) return;
       setFetchingPosts(true);
       try {
-        const res = await fetch(`/api/v1/posts/user/${username}`);
+        const res = await fetch(
+          `http://localhost:5000/api/v1/posts/user/${username}`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         setPosts(data);
       } catch (error) {
@@ -40,7 +45,12 @@ const UserPage = () => {
       if (!user) return;
       setFetchingReplies(true);
       try {
-        const res = await fetch(`/api/v1/posts/user/${username}/replies`);
+        const res = await fetch(
+          `http://localhost:5000/api/v1/posts/user/${username}/replies`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         setReplies(data);
         setRepliesCount(data.length);

@@ -36,6 +36,14 @@ flowchart TD
         Auth("Authentication\n(JWT)")
     end
 
+    %% Message Management section
+    subgraph "Message Management"
+        SingleMsg("Single Message\nDeletion")
+        BulkMsg("Bulk Message\nClearing")
+        MediaCleanup("Media Files\nCleanup")
+        RTSync("Real-time\nSynchronization")
+    end
+
     %% AI features section
     subgraph "AI Features"
         PostEnhance("Post Enhancement")
@@ -55,6 +63,14 @@ flowchart TD
     Backend --- Controllers
     Backend --- Models
     Backend --- Auth
+
+    Controllers --> "Message Management"
+    "Message Management" --> SingleMsg
+    "Message Management" --> BulkMsg
+    BulkMsg --> MediaCleanup
+    "Message Management" --> RTSync
+    RTSync --> SocketIO
+    MediaCleanup --> Cloudinary
 
     AI --- PostEnhance
     AI --- ContentMod
@@ -217,6 +233,47 @@ classDiagram
     Notification "1" --> "0..1" Message : references
 ```
 
+## Message Management Flow
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant ChatUI as Chat Interface
+    participant Backend as Backend API
+    participant Database as Database
+    participant Cloudinary as Cloudinary
+    participant RecipientSocket as Recipient Socket
+    participant RecipientUI as Recipient UI
+
+    %% Clear All Messages Flow
+    User->>ChatUI: Click trash icon
+    ChatUI->>User: Show confirmation dialog
+    User->>ChatUI: Confirm deletion
+    ChatUI->>Backend: DELETE /api/v1/messages/clear/:otherUserId
+
+    Backend->>Database: Find conversation
+    Database-->>Backend: Return conversation
+
+    Backend->>Database: Find all messages with images
+    Database-->>Backend: Return messages
+
+    Backend->>Cloudinary: Delete images from messages
+    Cloudinary-->>Backend: Confirm image deletion
+
+    Backend->>Database: Delete all messages from conversation
+    Database-->>Backend: Confirm message deletion
+
+    Backend->>Database: Update conversation lastMessage
+    Database-->>Backend: Confirm update
+
+    Backend->>RecipientSocket: Emit "chatCleared" event
+    Backend-->>ChatUI: Return success
+
+    ChatUI->>User: Show success notification
+    RecipientSocket-->>RecipientUI: Update UI to clear messages
+    RecipientUI->>RecipientUI: Show notification about cleared chat
+```
+
 ## Architecture Overview
 
 Threadio is built on a MERN stack architecture with integrated AI capabilities:
@@ -233,6 +290,7 @@ Threadio is built on a MERN stack architecture with integrated AI capabilities:
 - **Core Social Features**: Posts, comments, likes, follows, real-time chat
 - **Notification System**: Real-time notifications with context-aware filtering and management
 - **Post Sharing**: Direct sharing of posts to other users' chats with optional messages
+- **Message Management**: Individual message deletion and bulk conversation clearing with media cleanup
 - **AI-Enhanced Capabilities**:
   - Post enhancement with suggestions
   - Content moderation for community guidelines
@@ -262,3 +320,11 @@ Threadio is built on a MERN stack architecture with integrated AI capabilities:
 - Posts are embedded within messages with preview capabilities
 - Shared posts maintain links to original content
 - Recipients receive real-time notifications about shared posts
+
+### Message Management System
+
+- Individual messages can be deleted with "This message was deleted" indicator
+- Entire conversations can be cleared with a single action
+- All associated media files are automatically removed from Cloudinary
+- Real-time synchronization ensures both users see consistent state
+- Confirmation dialogs prevent accidental data loss

@@ -19,11 +19,15 @@ const ForgotPassword = () => {
   const handleForgotPassword = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/users/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/v1/users/forgot-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
@@ -64,8 +68,7 @@ const ForgotPassword = () => {
       p={8}
       rounded="lg"
       boxShadow="lg"
-      bg={useColorModeValue("white", "gray.800")}
-    >
+      bg={useColorModeValue("white", "gray.800")}>
       <Stack spacing={4}>
         <FormControl isRequired>
           <FormLabel>Email Address</FormLabel>
@@ -80,8 +83,7 @@ const ForgotPassword = () => {
           isLoading={loading}
           loadingText="Sending..."
           colorScheme="blue"
-          onClick={handleForgotPassword}
-        >
+          onClick={handleForgotPassword}>
           Send Reset Link
         </Button>
       </Stack>

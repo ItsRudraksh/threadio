@@ -11,7 +11,12 @@ const useGetUserProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`/api/v1/users/profile/${username}`);
+        const res = await fetch(
+          `http://localhost:5000/api/v1/users/profile/${username}`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         if (data.error) {
           showToast("Error", data.error, "error");

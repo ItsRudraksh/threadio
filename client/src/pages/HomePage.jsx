@@ -17,7 +17,9 @@ const HomePage = () => {
       setLoading(true);
       setPosts([]);
       try {
-        const res = await fetch(`/api/v1/posts/feed`);
+        const res = await fetch(`http://localhost:5000/api/v1/posts/feed`, {
+          credentials: "include",
+        });
         const data = await res.json();
         if (data.error) {
           showToast("Error", data.error, "error");
@@ -35,7 +37,9 @@ const HomePage = () => {
   }, [showToast, setPosts, reload]);
 
   return (
-    <Flex gap="10" alignItems={"flex-start"}>
+    <Flex
+      gap="10"
+      alignItems={"flex-start"}>
       <Box flex={70}>
         {!loading && posts.length === 0 && (
           <h1>Follow some users to see the feed</h1>
@@ -48,7 +52,11 @@ const HomePage = () => {
         )}
 
         {posts.map((post) => (
-          <Post key={post._id} post={post} postedBy={post.postedBy} />
+          <Post
+            key={post._id}
+            post={post}
+            postedBy={post.postedBy}
+          />
         ))}
       </Box>
       <Box
@@ -56,8 +64,7 @@ const HomePage = () => {
         display={{
           base: "none",
           md: "block",
-        }}
-      >
+        }}>
         <SuggestedUsers />
       </Box>
     </Flex>

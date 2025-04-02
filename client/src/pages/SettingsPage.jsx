@@ -14,9 +14,10 @@ const SettingsPage = () => {
       return;
 
     try {
-      const res = await fetch(`/api/v1/users/freeze`, {
+      const res = await fetch(`http://localhost:5000/api/v1/users/freeze`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
       const data = await res.json();
 
@@ -52,8 +53,9 @@ const SettingsPage = () => {
       return;
 
     try {
-      const res = await fetch("/api/v1/users/delete", {
+      const res = await fetch("http://localhost:5000/api/v1/users/delete", {
         method: "DELETE",
+        credentials: "include",
       });
 
       const data = await res.json();

@@ -39,12 +39,13 @@ const SignupCard = () => {
 
   const handleSignup = async () => {
     try {
-      const res = await fetch(`/api/v1/users/signup`, {
+      const res = await fetch(`http://localhost:5000/api/v1/users/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(inputs),
+        credentials: "include",
       });
       const data = await res.json();
 
@@ -63,12 +64,13 @@ const SignupCard = () => {
 
   const handleVerifyOtp = async () => {
     try {
-      const res = await fetch(`/api/v1/users/verify`, {
+      const res = await fetch(`http://localhost:5000/api/v1/users/verify`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: inputs.email, otp }),
+        credentials: "include",
       });
       const data = await res.json();
 
@@ -92,10 +94,19 @@ const SignupCard = () => {
   };
 
   return (
-    <Flex align={"center"} justify={"center"}>
-      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
+    <Flex
+      align={"center"}
+      justify={"center"}>
+      <Stack
+        spacing={8}
+        mx={"auto"}
+        maxW={"lg"}
+        py={12}
+        px={6}>
         <Stack align={"center"}>
-          <Heading fontSize={"4xl"} textAlign={"center"}>
+          <Heading
+            fontSize={"4xl"}
+            textAlign={"center"}>
             {showOtpInput ? "Verify Your Email" : "Sign up"}
           </Heading>
         </Stack>
@@ -103,8 +114,7 @@ const SignupCard = () => {
           rounded={"lg"}
           bg={useColorModeValue("white", "gray.dark")}
           boxShadow={"lg"}
-          p={8}
-        >
+          p={8}>
           <Stack spacing={4}>
             {showOtpInput ? (
               // OTP Input Screen
@@ -115,7 +125,9 @@ const SignupCard = () => {
                   onChange={(e) => setOtp(e.target.value)}
                   value={otp.trim()}
                 />
-                <Stack spacing={10} pt={4}>
+                <Stack
+                  spacing={10}
+                  pt={4}>
                   <Button
                     size="lg"
                     bg={useColorModeValue("gray.600", "gray.700")}
@@ -123,8 +135,7 @@ const SignupCard = () => {
                     _hover={{
                       bg: useColorModeValue("gray.700", "gray.800"),
                     }}
-                    onClick={handleVerifyOtp}
-                  >
+                    onClick={handleVerifyOtp}>
                     Verify
                   </Button>
                 </Stack>
@@ -173,7 +184,9 @@ const SignupCard = () => {
                   value={inputs.password}
                   onChange={(password) => setInputs({ ...inputs, password })}
                 />
-                <Stack spacing={10} pt={2}>
+                <Stack
+                  spacing={10}
+                  pt={2}>
                   <Button
                     loadingText="Submitting"
                     size="lg"
@@ -182,8 +195,7 @@ const SignupCard = () => {
                     _hover={{
                       bg: useColorModeValue("gray.700", "gray.800"),
                     }}
-                    onClick={handleSignup}
-                  >
+                    onClick={handleSignup}>
                     Sign up
                   </Button>
                 </Stack>
@@ -195,8 +207,7 @@ const SignupCard = () => {
                   Already a user?{" "}
                   <Link
                     color={"blue.400"}
-                    onClick={() => setAuthScreen("login")}
-                  >
+                    onClick={() => setAuthScreen("login")}>
                     Login
                   </Link>
                 </Text>

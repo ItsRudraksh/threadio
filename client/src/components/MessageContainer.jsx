@@ -1,13 +1,3 @@
-import {
-  Avatar,
-  Divider,
-  Flex,
-  Image,
-  Skeleton,
-  SkeletonCircle,
-  Text,
-  useColorModeValue,
-} from "@chakra-ui/react";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +10,27 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import messageSound from "../assets/sounds/message.mp3";
 import { useSocket } from "../context/SocketContext";
+import {
+  Avatar,
+  Button,
+  Divider,
+  Flex,
+  IconButton,
+  Image,
+  Skeleton,
+  SkeletonCircle,
+  Text,
+  useColorModeValue,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+} from "@chakra-ui/react";
+import { BsTrash } from "react-icons/bs";
+
 const MessageContainer = () => {
   const showToast = useShowToast();
   const selectedConversation = useRecoilValue(selectedConversationAtom);
@@ -84,6 +95,19 @@ const MessageContainer = () => {
     return () => socket.off("messageDeleted");
   }, [socket]);
 
+  // Listen for chatCleared events
+  useEffect(() => {
+    socket.on("chatCleared", ({ conversationId }) => {
+      if (selectedConversation._id === conversationId) {
+        // Clear all messages when the other user clears the chat
+        setMessages([]);
+        showToast("Info", "The other user cleared all messages", "info");
+      }
+    });
+
+    return () => socket.off("chatCleared");
+  }, [socket, selectedConversation, showToast]);
+
   useEffect(() => {
     const lastMessageIsFromOtherUser =
       messages.length &&
@@ -124,7 +148,10 @@ const MessageContainer = () => {
       try {
         if (selectedConversation.mock) return;
         const res = await fetch(
-          `/api/v1/messages/${selectedConversation.userId}`
+          `http://localhost:5000/api/v1/messages/${selectedConversation.userId}`,
+          {
+            credentials: "include",
+          }
         );
         const data = await res.json();
         if (data.error) {
@@ -165,6 +192,66 @@ const MessageContainer = () => {
     }
   };
 
+  // Handler for clear all messages
+  const [clearingChat, setClearingChat] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef();
+
+  const handleClearAllMessages = async () => {
+    if (clearingChat) return;
+
+    setClearingChat(true);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/v1/messages/clear/${selectedConversation.userId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.error) {
+        return showToast("Error", data.error, "error");
+      }
+
+      // Clear all messages from UI
+      setMessages([]);
+      showToast("Success", "All messages cleared", "success");
+
+      // Update the conversation in conversations list
+      setConversations((prev) => {
+        const updatedConversations = prev.map((conversation) => {
+          if (conversation._id === selectedConversation._id) {
+            return {
+              ...conversation,
+              lastMessage: {
+                text: "",
+                sender: currentUser._id,
+              },
+            };
+          }
+          return conversation;
+        });
+        return updatedConversations;
+      });
+
+      // Emit socket event to notify the recipient about cleared chat
+      if (socket) {
+        socket.emit("chatCleared", {
+          conversationId: selectedConversation._id,
+          recipientId: selectedConversation.userId,
+        });
+      }
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setClearingChat(false);
+      onClose();
+    }
+  };
+
   return (
     <Flex
       flex="70"
@@ -193,6 +280,16 @@ const MessageContainer = () => {
             ml={1}
           />
         </Text>
+        <Flex ml="auto">
+          <IconButton
+            icon={<BsTrash />}
+            aria-label="Clear all messages"
+            variant="ghost"
+            colorScheme="red"
+            onClick={onOpen}
+            isLoading={clearingChat}
+          />
+        </Flex>
       </Flex>
 
       <Divider />
@@ -257,6 +354,42 @@ const MessageContainer = () => {
         setMessages={setMessages}
         messages={messages}
       />
+
+      {/* Alert Dialog for confirming clear all messages */}
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent bg="gray.dark">
+            <AlertDialogHeader
+              fontSize="lg"
+              fontWeight="bold">
+              Clear All Messages
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure? This will permanently delete all messages and images
+              in this conversation. This action cannot be undone.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button
+                ref={cancelRef}
+                onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={handleClearAllMessages}
+                ml={3}
+                isLoading={clearingChat}>
+                Clear All
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Flex>
   );
 };

@@ -35,12 +35,13 @@ const LoginCard = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/users/login`, {
+      const res = await fetch(`http://localhost:5000/api/v1/users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(inputs),
+        credentials: "include",
       });
       const data = await res.json();
       if (data.error) {
@@ -56,10 +57,19 @@ const LoginCard = () => {
     }
   };
   return (
-    <Flex align={"center"} justify={"center"}>
-      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
+    <Flex
+      align={"center"}
+      justify={"center"}>
+      <Stack
+        spacing={8}
+        mx={"auto"}
+        maxW={"lg"}
+        py={12}
+        px={6}>
         <Stack align={"center"}>
-          <Heading fontSize={"4xl"} textAlign={"center"}>
+          <Heading
+            fontSize={"4xl"}
+            textAlign={"center"}>
             Login
           </Heading>
         </Stack>
@@ -71,8 +81,7 @@ const LoginCard = () => {
           w={{
             base: "full",
             sm: "400px",
-          }}
-        >
+          }}>
           <Stack spacing={4}>
             <FormControl isRequired>
               <FormLabel>Username</FormLabel>
@@ -105,14 +114,15 @@ const LoginCard = () => {
                     variant={"ghost"}
                     onClick={() =>
                       setShowPassword((showPassword) => !showPassword)
-                    }
-                  >
+                    }>
                     {showPassword ? <ViewIcon /> : <ViewOffIcon />}
                   </Button>
                 </InputRightElement>
               </InputGroup>
             </FormControl>
-            <Stack spacing={10} pt={2}>
+            <Stack
+              spacing={10}
+              pt={2}>
               <Button
                 loadingText="Logging in"
                 size="lg"
@@ -122,8 +132,7 @@ const LoginCard = () => {
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
                 onClick={handleLogin}
-                isLoading={loading}
-              >
+                isLoading={loading}>
                 Login
               </Button>
             </Stack>
@@ -132,8 +141,7 @@ const LoginCard = () => {
                 Don&apos;t have an account?{" "}
                 <Link
                   color={"blue.400"}
-                  onClick={() => setAuthScreen("signup")}
-                >
+                  onClick={() => setAuthScreen("signup")}>
                   Sign up
                 </Link>
               </Text>

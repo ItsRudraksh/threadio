@@ -10,7 +10,9 @@ const SearchPage = () => {
 
   const getAllUsers = async () => {
     try {
-      const res = await fetch(`/api/v1/users`);
+      const res = await fetch(`http://localhost:5000/api/v1/users`, {
+        credentials: "include",
+      });
       const result = await res.json();
       setUsers(result.allUsers); // Fetch and store the users
     } catch (error) {
@@ -38,7 +40,10 @@ const SearchPage = () => {
   }, [searchText, users]);
 
   return (
-    <Flex direction="column" align="center" p={4}>
+    <Flex
+      direction="column"
+      align="center"
+      p={4}>
       <Input
         placeholder="Search users by username or full name"
         value={searchText}
@@ -50,7 +55,10 @@ const SearchPage = () => {
 
       {/* Show the list of users only when searchText is not empty */}
       {searchText.trim() && (
-        <List spacing={3} width="100%" maxW="400px">
+        <List
+          spacing={3}
+          width="100%"
+          maxW="400px">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
               <Flex
@@ -61,14 +69,17 @@ const SearchPage = () => {
                 borderRadius="md"
                 gap={2}
                 as={Link}
-                to={`${baseURL}/${user.username}`}
-              >
+                to={`${baseURL}/${user.username}`}>
                 <Avatar src={user.profilePic} />
                 <Box>
-                  <Text fontSize={"sm"} fontWeight={"bold"}>
+                  <Text
+                    fontSize={"sm"}
+                    fontWeight={"bold"}>
                     {user.username}
                   </Text>
-                  <Text color={"gray.light"} fontSize={"sm"}>
+                  <Text
+                    color={"gray.light"}
+                    fontSize={"sm"}>
                     {user.name}
                   </Text>
                 </Box>

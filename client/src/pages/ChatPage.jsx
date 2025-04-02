@@ -56,7 +56,12 @@ const ChatPage = () => {
   useEffect(() => {
     const getConversations = async () => {
       try {
-        const res = await fetch("/api/v1/messages/conversations");
+        const res = await fetch(
+          "http://localhost:5000/api/v1/messages/conversations",
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         if (data.error) {
           showToast("Error", data.error, "error");
@@ -78,7 +83,12 @@ const ChatPage = () => {
     e.preventDefault();
     setSearchingUser(true);
     try {
-      const res = await fetch(`/api/v1/users/profile/${searchText}`);
+      const res = await fetch(
+        `http://localhost:5000/api/v1/users/profile/${searchText}`,
+        {
+          credentials: "include",
+        }
+      );
       const searchedUser = await res.json();
       if (searchedUser.error) {
         showToast("Error", searchedUser.error, "error");
@@ -134,8 +144,7 @@ const ChatPage = () => {
       left={"50%"}
       w={{ base: "100%", md: "80%", lg: "750px" }}
       p={4}
-      transform={"translateX(-50%)"}
-    >
+      transform={"translateX(-50%)"}>
       <Flex
         gap={4}
         flexDirection={{ base: "column", md: "row" }}
@@ -143,23 +152,22 @@ const ChatPage = () => {
           sm: "400px",
           md: "full",
         }}
-        mx={"auto"}
-      >
+        mx={"auto"}>
         <Flex
           flex={30}
           gap={2}
           flexDirection={"column"}
           maxW={{ sm: "250px", md: "full" }}
-          mx={"auto"}
-        >
+          mx={"auto"}>
           <Text
             fontWeight={700}
-            color={useColorModeValue("gray.600", "gray.400")}
-          >
+            color={useColorModeValue("gray.600", "gray.400")}>
             Your Conversations
           </Text>
           <form onSubmit={handleConversationSearch}>
-            <Flex alignItems={"center"} gap={2}>
+            <Flex
+              alignItems={"center"}
+              gap={2}>
               <Input
                 placeholder="Search for a user"
                 onChange={(e) => setSearchText(e.target.value)}
@@ -167,8 +175,7 @@ const ChatPage = () => {
               <Button
                 size={"sm"}
                 onClick={handleConversationSearch}
-                isLoading={searchingUser}
-              >
+                isLoading={searchingUser}>
                 <SearchIcon />
               </Button>
             </Flex>
@@ -181,14 +188,22 @@ const ChatPage = () => {
                 gap={4}
                 alignItems={"center"}
                 p={"1"}
-                borderRadius={"md"}
-              >
+                borderRadius={"md"}>
                 <Box>
                   <SkeletonCircle size={"10"} />
                 </Box>
-                <Flex w={"full"} flexDirection={"column"} gap={3}>
-                  <Skeleton h={"10px"} w={"80px"} />
-                  <Skeleton h={"8px"} w={"90%"} />
+                <Flex
+                  w={"full"}
+                  flexDirection={"column"}
+                  gap={3}>
+                  <Skeleton
+                    h={"10px"}
+                    w={"80px"}
+                  />
+                  <Skeleton
+                    h={"8px"}
+                    w={"90%"}
+                  />
                 </Flex>
               </Flex>
             ))}
@@ -212,8 +227,7 @@ const ChatPage = () => {
             flexDir={"column"}
             alignItems={"center"}
             justifyContent={"center"}
-            height={"400px"}
-          >
+            height={"400px"}>
             <GiConversation size={100} />
             <Text fontSize={20}>Select a conversation to start messaging</Text>
           </Flex>

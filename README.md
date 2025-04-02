@@ -15,6 +15,7 @@ Threadio is a modern social media application designed for real-time interaction
 - 💬 Real-time chat with image support
 - 👀 Seen/unseen status for messages
 - 🗑️ Delete messages with "This message was deleted" indicator
+- 🧹 Clear all chat messages with confirmation dialog
 - 🔍 Context menu for message actions
 - 🚫 Account deletion with Cloudinary cleanup
 - 🔊 Notification sounds
@@ -150,6 +151,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## **Recent Updates**
 
+- **Clear All Messages**: New feature to permanently delete all messages in a conversation with image cleanup
 - **Post Sharing**: Share posts directly to chat conversations with personalized messages
 - **Enhanced Notifications**: Clear all notifications with a single click
 - **Smart Notification Display**: Chat notifications are filtered when viewing the chat page

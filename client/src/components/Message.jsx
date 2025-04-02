@@ -54,9 +54,13 @@ const Message = ({ ownMessage, message, onDelete }) => {
 
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/v1/messages/${message._id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/v1/messages/${message._id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
 

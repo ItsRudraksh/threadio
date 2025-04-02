@@ -3,8 +3,10 @@ import http, { METHODS } from "http";
 import express from "express";
 import Message from "../models/message.model.js";
 import Conversation from "../models/conversation.model.js";
+import cors from "cors";
 
 export const app = express();
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 export const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
@@ -51,6 +53,17 @@ io.on("connection", (socket) => {
       }
     } catch (error) {
       console.log("Error in messageDeleted socket event:", error);
+    }
+  });
+
+  socket.on("chatCleared", ({ conversationId, recipientId }) => {
+    try {
+      const recipientSocketId = userSocketMap[recipientId];
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("chatCleared", { conversationId });
+      }
+    } catch (error) {
+      console.log("Error in chatCleared socket event:", error);
     }
   });
 

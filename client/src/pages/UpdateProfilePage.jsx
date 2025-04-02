@@ -38,13 +38,17 @@ const UpdateProfilePage = () => {
     if (updating) return;
     setUpdating(true);
     try {
-      const res = await fetch(`/api/v1/users/update/${user._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...inputs, profilePic: imgUrl }),
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/v1/users/update/${user._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...inputs, profilePic: imgUrl }),
+          credentials: "include",
+        }
+      );
       const data = await res.json(); // updated user object
       if (data.error) {
         showToast("Error", data.error, "error");

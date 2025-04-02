@@ -1,8 +1,8 @@
-import { 
-  Avatar, 
-  Image, 
-  Box, 
-  Flex, 
+import {
+  Avatar,
+  Image,
+  Box,
+  Flex,
   Text,
   AlertDialog,
   AlertDialogBody,
@@ -36,7 +36,12 @@ const Post = ({ post, postedBy }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`/api/v1/users/profile/${postedBy}`);
+        const res = await fetch(
+          `http://localhost:5000/api/v1/users/profile/${postedBy}`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         if (data.error) {
           showToast("Error", data.error, "error");
@@ -59,12 +64,16 @@ const Post = ({ post, postedBy }) => {
 
   const handleDeletePost = async () => {
     if (isDeleting) return;
-    
+
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/v1/posts/${post._id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/v1/posts/${post._id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       if (data.error) {
         showToast("Error", data.error, "error");
@@ -84,8 +93,13 @@ const Post = ({ post, postedBy }) => {
   return (
     <>
       <Link to={`/${user.username}/post/${post._id}`}>
-        <Flex gap={3} mb={4} py={5}>
-          <Flex flexDirection={"column"} alignItems={"center"}>
+        <Flex
+          gap={3}
+          mb={4}
+          py={5}>
+          <Flex
+            flexDirection={"column"}
+            alignItems={"center"}>
             <Avatar
               size="md"
               name={user.name}
@@ -95,9 +109,17 @@ const Post = ({ post, postedBy }) => {
                 navigate(`/${user.username}`);
               }}
             />
-            <Box w="1px" h={"full"} bg="gray.light" my={2}></Box>
-            <Box position={"relative"} w={"full"}>
-              {post.replies.length === 0 && <Text textAlign={"center"}>🥱</Text>}
+            <Box
+              w="1px"
+              h={"full"}
+              bg="gray.light"
+              my={2}></Box>
+            <Box
+              position={"relative"}
+              w={"full"}>
+              {post.replies.length === 0 && (
+                <Text textAlign={"center"}>🥱</Text>
+              )}
               {post.replies[0] && (
                 <Avatar
                   size="xs"
@@ -135,33 +157,49 @@ const Post = ({ post, postedBy }) => {
               )}
             </Box>
           </Flex>
-          <Flex flex={1} flexDirection={"column"} gap={2}>
-            <Flex justifyContent={"space-between"} w={"full"}>
-              <Flex w={"full"} alignItems={"center"}>
+          <Flex
+            flex={1}
+            flexDirection={"column"}
+            gap={2}>
+            <Flex
+              justifyContent={"space-between"}
+              w={"full"}>
+              <Flex
+                w={"full"}
+                alignItems={"center"}>
                 <Text
                   fontSize={"sm"}
                   fontWeight={"bold"}
                   onClick={(e) => {
                     e.preventDefault();
                     navigate(`/${user.username}`);
-                  }}
-                >
+                  }}>
                   {user?.username}
                 </Text>
-                <Image src="/verified.png" w={4} h={4} ml={1} />
+                <Image
+                  src="/verified.png"
+                  w={4}
+                  h={4}
+                  ml={1}
+                />
               </Flex>
-              <Flex gap={4} alignItems={"center"}>
+              <Flex
+                gap={4}
+                alignItems={"center"}>
                 <Text
                   fontSize={"xs"}
                   width={36}
                   textAlign={"right"}
-                  color={"gray.light"}
-                >
+                  color={"gray.light"}>
                   {formatDistanceToNow(new Date(post.createdAt))} ago
                 </Text>
 
                 {currentUser?._id === user._id && (
-                  <DeleteIcon size={20} onClick={handleDeleteClick} cursor="pointer" />
+                  <DeleteIcon
+                    size={20}
+                    onClick={handleDeleteClick}
+                    cursor="pointer"
+                  />
                 )}
               </Flex>
             </Flex>
@@ -172,13 +210,17 @@ const Post = ({ post, postedBy }) => {
                 borderRadius={6}
                 overflow={"hidden"}
                 border={"1px solid"}
-                borderColor={"gray.light"}
-              >
-                <Image src={post.img} w={"full"} />
+                borderColor={"gray.light"}>
+                <Image
+                  src={post.img}
+                  w={"full"}
+                />
               </Box>
             )}
 
-            <Flex gap={3} my={1}>
+            <Flex
+              gap={3}
+              my={1}>
               <Actions post={post} />
             </Flex>
           </Flex>
@@ -189,29 +231,35 @@ const Post = ({ post, postedBy }) => {
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
         onClose={onClose}
-        isCentered
-      >
+        isCentered>
         <AlertDialogOverlay>
-          <AlertDialogContent bg="gray.dark" borderColor="gray.light">
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+          <AlertDialogContent
+            bg="gray.dark"
+            borderColor="gray.light">
+            <AlertDialogHeader
+              fontSize="lg"
+              fontWeight="bold">
               Delete Post
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure you want to delete this post? This action cannot be undone.
+              Are you sure you want to delete this post? This action cannot be
+              undone.
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose} variant="outline">
+              <Button
+                ref={cancelRef}
+                onClick={onClose}
+                variant="outline">
                 Cancel
               </Button>
-              <Button 
-                colorScheme="red" 
-                onClick={handleDeletePost} 
+              <Button
+                colorScheme="red"
+                onClick={handleDeletePost}
                 ml={3}
                 isLoading={isDeleting}
-                loadingText="Deleting"
-              >
+                loadingText="Deleting">
                 Delete
               </Button>
             </AlertDialogFooter>

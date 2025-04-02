@@ -43,7 +43,12 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
 
       setLoading(true);
       try {
-        const res = await fetch(`/api/v1/users/search?search=${searchText}`);
+        const res = await fetch(
+          `http://localhost:5000/api/v1/users/search?search=${searchText}`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
 
         if (data.error) {
@@ -89,7 +94,7 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
 
     setSharing(true);
     try {
-      const res = await fetch("/api/v1/messages", {
+      const res = await fetch("http://localhost:5000/api/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,6 +104,7 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
           message: message,
           sharedPostId: post._id,
         }),
+        credentials: "include",
       });
 
       const data = await res.json();

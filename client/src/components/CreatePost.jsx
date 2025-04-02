@@ -92,7 +92,7 @@ const CreatePost = () => {
         return;
       }
 
-      const res = await fetch("/api/v1/posts/create", {
+      const res = await fetch("http://localhost:5000/api/v1/posts/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -102,6 +102,7 @@ const CreatePost = () => {
           text: imageCaption ? `${postText}\n\n${imageCaption}` : postText,
           img: imgUrl,
         }),
+        credentials: "include",
       });
 
       const data = await res.json();

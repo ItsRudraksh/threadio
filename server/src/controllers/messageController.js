@@ -85,9 +85,7 @@ export const sendMessage = async (req, res) => {
 
     const notificationText = sharedPostId
       ? `${sender.username} shared a post with you`
-      : `${sender.username} sent you a message: "${message?.substring(0, 30)}${
-          message?.length > 30 ? "..." : ""
-        }"`;
+      : `${sender.username} sent you a message`;
 
     await createNotification(
       recipientId,
@@ -219,5 +217,57 @@ export const deleteMessage = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log("Error in deleteMessage:", error.message);
+  }
+};
+
+export const clearAllMessages = async (req, res) => {
+  try {
+    const { otherUserId } = req.params;
+    const userId = req.user.id;
+
+    // Find the conversation
+    const conversation = await Conversation.findOne({
+      participants: { $all: [userId, otherUserId] },
+    });
+
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    // Find all messages in this conversation
+    const messages = await Message.find({
+      conversationId: conversation._id,
+    });
+
+    // Delete all images from Cloudinary
+    const deletePromises = messages
+      .filter((message) => message.img)
+      .map((message) => deleteCloudinaryImage(message.img));
+
+    await Promise.all(deletePromises);
+
+    // Delete all messages from the database
+    await Message.deleteMany({ conversationId: conversation._id });
+
+    // Update the conversation to have no last message
+    await Conversation.findByIdAndUpdate(conversation._id, {
+      lastMessage: {
+        text: "",
+        sender: userId,
+      },
+    });
+
+    // Notify the other user that the chat was cleared
+    const recipientSocketId = getRecipientSocketId(otherUserId);
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit("chatCleared", {
+        conversationId: conversation._id.toString(),
+      });
+    }
+
+    res.status(200).json({ message: "All messages cleared successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("Error in clearAllMessages:", error.message);
   }
 };

@@ -47,12 +47,16 @@ const Actions = ({ post }) => {
     if (isLiking) return;
     setIsLiking(true);
     try {
-      const res = await fetch(`/api/v1/posts/like/${post._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/v1/posts/like/${post._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       if (data.error) return showToast("Error", data.error, "error");
 
@@ -94,13 +98,17 @@ const Actions = ({ post }) => {
     if (isReplying) return;
     setIsReplying(true);
     try {
-      const res = await fetch(`/api/v1/posts/reply/${post._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: reply }),
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/v1/posts/reply/${post._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: reply }),
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       if (data.error) return showToast("Error", data.error, "error");
 
