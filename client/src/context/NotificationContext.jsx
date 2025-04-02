@@ -4,6 +4,7 @@ import useShowToast from "../hooks/useShowToast";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import notificationSound from "../assets/sounds/message.mp3";
+import { useLocation } from "react-router-dom";
 
 const NotificationContext = createContext();
 
@@ -18,6 +19,7 @@ export const NotificationProvider = ({ children }) => {
   const { socket } = useSocket();
   const showToast = useShowToast();
   const user = useRecoilValue(userAtom);
+  const location = useLocation();
 
   // Fetch notifications when user logs in
   useEffect(() => {
@@ -62,6 +64,11 @@ export const NotificationProvider = ({ children }) => {
     if (!socket) return;
 
     socket.on("newNotification", (notification) => {
+      // Don't show chat notifications if the user is on the chat page
+      if (notification.type === "message" && location.pathname === "/chat") {
+        return;
+      }
+      
       // Play sound if the window is not focused
       if (!document.hasFocus()) {
         const sound = new Audio(notificationSound);
@@ -75,7 +82,7 @@ export const NotificationProvider = ({ children }) => {
     return () => {
       socket.off("newNotification");
     };
-  }, [socket]);
+  }, [socket, location.pathname]);
 
   const markAsRead = async (notificationId) => {
     try {
@@ -122,6 +129,24 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  const clearAllNotifications = async () => {
+    try {
+      const res = await fetch("/api/v1/notifications/clear-all", {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error);
+      }
+
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    }
+  };
+
   return (
     <NotificationContext.Provider
       value={{
@@ -130,6 +155,7 @@ export const NotificationProvider = ({ children }) => {
         loading,
         markAsRead,
         markAllAsRead,
+        clearAllNotifications,
       }}>
       {children}
     </NotificationContext.Provider>

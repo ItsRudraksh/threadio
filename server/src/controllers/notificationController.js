@@ -75,6 +75,19 @@ export const markAllAsRead = async (req, res) => {
   }
 };
 
+export const clearAllNotifications = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    await Notification.deleteMany({ recipient: userId });
+
+    res.status(200).json({ message: "All notifications cleared" });
+  } catch (error) {
+    console.error("Error in clearAllNotifications: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Helper function to create notification and emit socket event
 export const createNotification = async (
   recipientId,

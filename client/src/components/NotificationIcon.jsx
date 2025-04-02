@@ -12,15 +12,31 @@ import {
   Tooltip,
   Flex,
   Button,
+  Divider,
 } from "@chakra-ui/react";
 import { FaBell } from "react-icons/fa";
 import { useNotifications } from "../context/NotificationContext";
 import { formatDistanceToNow } from "date-fns";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const NotificationIcon = () => {
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    markAsRead,
+    markAllAsRead,
+    clearAllNotifications,
+  } = useNotifications();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isOnChatPage, setIsOnChatPage] = useState(false);
+
+  // Check if we're on the chat page to filter notifications
+  useEffect(() => {
+    setIsOnChatPage(location.pathname === "/chat");
+  }, [location]);
 
   const handleNotificationClick = (notification) => {
     // Mark notification as read
@@ -33,7 +49,9 @@ const NotificationIcon = () => {
       case "like":
       case "reply":
         if (notification.post) {
-          navigate(`/${notification.sender.username}/post/${notification.post}`);
+          navigate(
+            `/${notification.sender.username}/post/${notification.post}`
+          );
         }
         break;
       case "follow":
@@ -47,12 +65,20 @@ const NotificationIcon = () => {
     }
   };
 
+  // Filter out chat notifications if we're on the chat page
+  const filteredNotifications = isOnChatPage
+    ? notifications.filter((notification) => notification.type !== "message")
+    : notifications;
+
   return (
     <Box position="relative">
       <Menu>
         <Tooltip label="Notifications">
           <MenuButton>
-            <Icon as={FaBell} boxSize={5} />
+            <Icon
+              as={FaBell}
+              boxSize={5}
+            />
             {unreadCount > 0 && (
               <Circle
                 bg="red.500"
@@ -62,8 +88,7 @@ const NotificationIcon = () => {
                 top="-8px"
                 right="-8px"
                 fontSize="xs"
-                fontWeight="bold"
-              >
+                fontWeight="bold">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </Circle>
             )}
@@ -76,33 +101,45 @@ const NotificationIcon = () => {
             borderColor="gray.light"
             minW="350px"
             maxH="450px"
-            overflowY="auto"
-          >
+            overflowY="auto">
             <Flex
               justifyContent="space-between"
               alignItems="center"
               p={2}
               borderBottom="1px solid"
-              borderColor="gray.light"
-            >
+              borderColor="gray.light">
               <Text fontWeight="bold">Notifications</Text>
-              {unreadCount > 0 && (
-                <Button size="xs" onClick={markAllAsRead}>
-                  Mark all as read
-                </Button>
-              )}
+              <Flex gap={2}>
+                {unreadCount > 0 && (
+                  <Button
+                    size="xs"
+                    onClick={markAllAsRead}>
+                    Mark all read
+                  </Button>
+                )}
+                {filteredNotifications.length > 0 && (
+                  <Button
+                    size="xs"
+                    colorScheme="red"
+                    onClick={clearAllNotifications}>
+                    Clear all
+                  </Button>
+                )}
+              </Flex>
             </Flex>
-            
+
             {loading ? (
-              <Flex justify="center" p={4}>
+              <Flex
+                justify="center"
+                p={4}>
                 <Spinner size="md" />
               </Flex>
-            ) : notifications.length === 0 ? (
+            ) : filteredNotifications.length === 0 ? (
               <MenuItem _hover={{ bg: "gray.700" }}>
                 No notifications yet
               </MenuItem>
             ) : (
-              notifications.map((notification) => (
+              filteredNotifications.map((notification) => (
                 <MenuItem
                   key={notification._id}
                   onClick={() => handleNotificationClick(notification)}
@@ -110,12 +147,17 @@ const NotificationIcon = () => {
                   bg={!notification.read ? "gray.700" : "gray.dark"}
                   borderLeft={!notification.read ? "3px solid" : "none"}
                   borderLeftColor={!notification.read ? "blue.400" : "none"}
-                  p={3}
-                >
-                  <Flex direction="column" gap={1}>
+                  p={3}>
+                  <Flex
+                    direction="column"
+                    gap={1}>
                     <Text>{notification.text}</Text>
-                    <Text fontSize="xs" color="gray.400">
-                      {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                    <Text
+                      fontSize="xs"
+                      color="gray.400">
+                      {formatDistanceToNow(new Date(notification.createdAt), {
+                        addSuffix: true,
+                      })}
                     </Text>
                   </Flex>
                 </MenuItem>
@@ -128,4 +170,4 @@ const NotificationIcon = () => {
   );
 };
 
-export default NotificationIcon; 
+export default NotificationIcon;
