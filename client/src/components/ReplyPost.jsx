@@ -16,7 +16,9 @@ const ReplyPost = ({ post }) => {
     const getUser = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/v1/users/profile/${post.postedBy}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/users/profile/${
+            post.postedBy
+          }`,
           {
             credentials: "include",
           }

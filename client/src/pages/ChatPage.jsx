@@ -57,7 +57,7 @@ const ChatPage = () => {
     const getConversations = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/v1/messages/conversations",
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/conversations`,
           {
             credentials: "include",
           }
@@ -84,7 +84,9 @@ const ChatPage = () => {
     setSearchingUser(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/users/profile/${searchText}`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/users/profile/${searchText}`,
         {
           credentials: "include",
         }

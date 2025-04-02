@@ -1,15 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
   VStack,
   Text,
   useToast,
-  Spinner,
   Textarea,
   Tag,
   TagLabel,
-  TagCloseButton,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
@@ -66,8 +64,14 @@ const AIEnhancement = ({ onEnhance, initialContent = "" }) => {
   };
 
   return (
-    <Box w="100%" p={4} borderWidth="1px" borderRadius="lg">
-      <VStack spacing={4} align="stretch">
+    <Box
+      w="100%"
+      p={4}
+      borderWidth="1px"
+      borderRadius="lg">
+      <VStack
+        spacing={4}
+        align="stretch">
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -75,33 +79,57 @@ const AIEnhancement = ({ onEnhance, initialContent = "" }) => {
           size="lg"
           rows={4}
         />
-        
+
         <Button
           colorScheme="blue"
           onClick={handleEnhance}
           isLoading={isLoading}
-          loadingText="Enhancing..."
-        >
+          loadingText="Enhancing...">
           Enhance with AI
         </Button>
 
         {enhancedContent && (
-          <Box p={4} bg="gray.50" borderRadius="md" bgColor="black" >
-            <Text fontWeight="bold" mb={2}>Enhanced Content:</Text>
+          <Box
+            p={4}
+            bg="gray.50"
+            borderRadius="md"
+            bgColor="black">
+            <Text
+              fontWeight="bold"
+              mb={2}>
+              Enhanced Content:
+            </Text>
             <Text mb={4}>{enhancedContent.enhancedContent}</Text>
-            
-            <Text fontWeight="bold" mb={2}>Suggestions:</Text>
-            <VStack align="stretch" spacing={2} mb={4}>
+
+            <Text
+              fontWeight="bold"
+              mb={2}>
+              Suggestions:
+            </Text>
+            <VStack
+              align="stretch"
+              spacing={2}
+              mb={4}>
               {enhancedContent.suggestions.map((suggestion, index) => (
                 <Text key={index}>• {suggestion}</Text>
               ))}
             </VStack>
 
-            <Text fontWeight="bold" mb={2}>Suggested Hashtags:</Text>
-            <Wrap spacing={2} mb={4}>
+            <Text
+              fontWeight="bold"
+              mb={2}>
+              Suggested Hashtags:
+            </Text>
+            <Wrap
+              spacing={2}
+              mb={4}>
               {enhancedContent.hashtags.map((hashtag, index) => (
                 <WrapItem key={index}>
-                  <Tag size="md" borderRadius="full" variant="solid" colorScheme="blue">
+                  <Tag
+                    size="md"
+                    borderRadius="full"
+                    variant="solid"
+                    colorScheme="blue">
                     <TagLabel>{hashtag}</TagLabel>
                   </Tag>
                 </WrapItem>
@@ -111,8 +139,7 @@ const AIEnhancement = ({ onEnhance, initialContent = "" }) => {
             <Button
               colorScheme="green"
               onClick={handleApplyEnhancement}
-              size="sm"
-            >
+              size="sm">
               Apply Enhancement
             </Button>
           </Box>
@@ -122,4 +149,4 @@ const AIEnhancement = ({ onEnhance, initialContent = "" }) => {
   );
 };
 
-export default AIEnhancement; 
+export default AIEnhancement;

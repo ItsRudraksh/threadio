@@ -55,7 +55,7 @@ const Message = ({ ownMessage, message, onDelete }) => {
     setIsDeleting(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/messages/${message._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/${message._id}`,
         {
           method: "DELETE",
           credentials: "include",

@@ -37,7 +37,9 @@ const Post = ({ post, postedBy }) => {
     const getUser = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/v1/users/profile/${postedBy}`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/v1/users/profile/${postedBy}`,
           {
             credentials: "include",
           }
@@ -68,7 +70,7 @@ const Post = ({ post, postedBy }) => {
     setIsDeleting(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/posts/${post._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/posts/${post._id}`,
         {
           method: "DELETE",
           credentials: "include",

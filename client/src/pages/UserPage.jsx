@@ -26,7 +26,7 @@ const UserPage = () => {
       setFetchingPosts(true);
       try {
         const res = await fetch(
-          `http://localhost:5000/api/v1/posts/user/${username}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/posts/user/${username}`,
           {
             credentials: "include",
           }
@@ -46,7 +46,9 @@ const UserPage = () => {
       setFetchingReplies(true);
       try {
         const res = await fetch(
-          `http://localhost:5000/api/v1/posts/user/${username}/replies`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/v1/posts/user/${username}/replies`,
           {
             credentials: "include",
           }

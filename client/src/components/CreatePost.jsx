@@ -92,18 +92,21 @@ const CreatePost = () => {
         return;
       }
 
-      const res = await fetch("http://localhost:5000/api/v1/posts/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          postedBy: user._id,
-          text: imageCaption ? `${postText}\n\n${imageCaption}` : postText,
-          img: imgUrl,
-        }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/posts/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            postedBy: user._id,
+            text: imageCaption ? `${postText}\n\n${imageCaption}` : postText,
+            img: imgUrl,
+          }),
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       if (data.error) {

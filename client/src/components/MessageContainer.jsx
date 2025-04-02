@@ -148,7 +148,9 @@ const MessageContainer = () => {
       try {
         if (selectedConversation.mock) return;
         const res = await fetch(
-          `http://localhost:5000/api/v1/messages/${selectedConversation.userId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/${
+            selectedConversation.userId
+          }`,
           {
             credentials: "include",
           }
@@ -203,7 +205,9 @@ const MessageContainer = () => {
     setClearingChat(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/messages/clear/${selectedConversation.userId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/clear/${
+          selectedConversation.userId
+        }`,
         {
           method: "DELETE",
           credentials: "include",

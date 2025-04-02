@@ -44,7 +44,9 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:5000/api/v1/users/search?search=${searchText}`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/v1/users/search?search=${searchText}`,
           {
             credentials: "include",
           }
@@ -94,18 +96,21 @@ const SharePostModal = ({ isOpen, onClose, post }) => {
 
     setSharing(true);
     try {
-      const res = await fetch("http://localhost:5000/api/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          recipientId: selectedUser._id,
-          message: message,
-          sharedPostId: post._id,
-        }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            recipientId: selectedUser._id,
+            message: message,
+            sharedPostId: post._id,
+          }),
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
       if (data.error) {

@@ -4,15 +4,16 @@ import express from "express";
 import Message from "../models/message.model.js";
 import Conversation from "../models/conversation.model.js";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const app = express();
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: `${CLIENT_URL}` }));
 export const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: `${CLIENT_URL}`,
     methods: ["GET", "POST"],
-    // origin: "https://threadio.onrender.com", // FOR DEPLOYMENT
   },
 });
 

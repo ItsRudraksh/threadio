@@ -20,7 +20,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "http://localhost:5000/api/v1/users/forgot-password",
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/users/forgot-password`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

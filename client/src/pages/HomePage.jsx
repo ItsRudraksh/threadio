@@ -17,9 +17,12 @@ const HomePage = () => {
       setLoading(true);
       setPosts([]);
       try {
-        const res = await fetch(`http://localhost:5000/api/v1/posts/feed`, {
-          credentials: "include",
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/posts/feed`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         if (data.error) {
           showToast("Error", data.error, "error");

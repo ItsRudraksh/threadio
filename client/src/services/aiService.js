@@ -1,12 +1,16 @@
 export const enhancePostContent = async (content) => {
   try {
-    const res = await fetch("http://localhost:5000/api/v1/ai/enhance", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content }),
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/ai/enhance`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content }),
+        credentials: "include",
+      }
+    );
     const data = await res.json();
     if (data.error) {
       throw new Error(data.error);
@@ -20,14 +24,17 @@ export const enhancePostContent = async (content) => {
 
 export const checkContentModeration = async (content) => {
   try {
-    const res = await fetch("http://localhost:5000/api/v1/ai/moderate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content }),
-      credentials: "include",
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/ai/moderate`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content }),
+        credentials: "include",
+      }
+    );
     const data = await res.json();
     if (data.error) {
       throw new Error(data.error);
@@ -54,14 +61,17 @@ export const generateImageCaption = async (image) => {
       );
     }
 
-    const res = await fetch("http://localhost:5000/api/v1/ai/caption", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ image }),
-      credentials: "include",
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/ai/caption`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image }),
+        credentials: "include",
+      }
+    );
 
     // Check for non-JSON responses
     const contentType = res.headers.get("content-type");

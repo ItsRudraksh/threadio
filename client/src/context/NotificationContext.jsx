@@ -34,12 +34,15 @@ export const NotificationProvider = ({ children }) => {
       setLoading(true);
       try {
         const [notifRes, countRes] = await Promise.all([
-          fetch("http://localhost:5000/api/v1/notifications", {
+          fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/notifications`, {
             credentials: "include",
           }),
-          fetch("http://localhost:5000/api/v1/notifications/unread", {
-            credentials: "include",
-          }),
+          fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/api/v1/notifications/unread`,
+            {
+              credentials: "include",
+            }
+          ),
         ]);
 
         const [notifData, countData] = await Promise.all([
@@ -91,7 +94,9 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (notificationId) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/notifications/mark-read/${notificationId}`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/notifications/mark-read/${notificationId}`,
         {
           method: "PUT",
           credentials: "include",
@@ -117,7 +122,9 @@ export const NotificationProvider = ({ children }) => {
   const markAllAsRead = async () => {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/v1/notifications/mark-all-read",
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/notifications/mark-all-read`,
         {
           method: "PUT",
           credentials: "include",
@@ -141,7 +148,7 @@ export const NotificationProvider = ({ children }) => {
   const clearAllNotifications = async () => {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/v1/notifications/clear-all",
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/notifications/clear-all`,
         {
           method: "DELETE",
           credentials: "include",

@@ -67,7 +67,9 @@ const MessageInput = ({ setMessages, messages }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/ai/chat-suggestions/${selectedConversation._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/ai/chat-suggestions/${
+          selectedConversation._id
+        }`,
         {
           method: "GET",
           headers: {
@@ -110,18 +112,21 @@ const MessageInput = ({ setMessages, messages }) => {
     setIsSending(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: messageText,
-          recipientId: selectedConversation.userId,
-          img: imgUrl,
-        }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: messageText,
+            recipientId: selectedConversation.userId,
+            img: imgUrl,
+          }),
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       if (data.error) {
         showToast("Error", data.error, "error");

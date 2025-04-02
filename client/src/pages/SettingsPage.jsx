@@ -14,11 +14,14 @@ const SettingsPage = () => {
       return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/users/freeze`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/users/freeze`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }
+      );
       const data = await res.json();
 
       if (data.error) {
@@ -53,10 +56,13 @@ const SettingsPage = () => {
       return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/v1/users/delete", {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/users/delete`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
 

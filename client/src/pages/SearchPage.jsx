@@ -10,9 +10,12 @@ const SearchPage = () => {
 
   const getAllUsers = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/users`, {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/users`,
+        {
+          credentials: "include",
+        }
+      );
       const result = await res.json();
       setUsers(result.allUsers); // Fetch and store the users
     } catch (error) {

@@ -48,7 +48,7 @@ const Actions = ({ post }) => {
     setIsLiking(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/posts/like/${post._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/posts/like/${post._id}`,
         {
           method: "PUT",
           headers: {
@@ -99,7 +99,7 @@ const Actions = ({ post }) => {
     setIsReplying(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/posts/reply/${post._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/posts/reply/${post._id}`,
         {
           method: "PUT",
           headers: {

@@ -25,7 +25,9 @@ const FollowersAndFollowing = () => {
     const fetchConnections = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/v1/users/${username}/followers&following`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/v1/users/${username}/followers&following`,
           {
             credentials: "include",
           }
