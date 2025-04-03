@@ -15,7 +15,7 @@ export const SocketContextProvider = ({ children }) => {
   const user = useRecoilValue(userAtom);
 
   useEffect(() => {
-    const socket = io(`${import.meta.env.VITE_BACKEND_URL}`, {
+    const socket = io(`/`, {
       query: {
         userId: user?._id,
       },
