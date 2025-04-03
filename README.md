@@ -1,6 +1,6 @@
-# **Threadio**
+# **Nexus**
 
-Threadio is a modern social media application designed for real-time interactions, allowing users to create and engage with posts, chat in real time, and manage their accounts. Built using the MERN stack, Threadio provides a seamless and interactive user experience with additional features like real-time chat, media handling, customizable themes, and AI-powered capabilities that enhance content creation and user interactions.
+Nexus is a modern social media application designed for real-time interactions, allowing users to create and engage with posts, chat in real time, and manage their accounts. Built using the MERN stack, Nexus provides a seamless and interactive user experience with additional features like real-time chat, media handling, customizable themes, and AI-powered capabilities that enhance content creation and user interactions.
 
 ## **Features**
 
@@ -38,9 +38,9 @@ Threadio is a modern social media application designed for real-time interaction
 ## **Cloud Storage**
 
 - 📁 Organized media storage in Cloudinary
-  - Profile pictures stored in `threadio/profileimages`
-  - Message images stored in `threadio/messageimages`
-  - Post images stored in `threadio/postimages`
+  - Profile pictures stored in `nexus/profileimages`
+  - Message images stored in `nexus/messageimages`
+  - Post images stored in `nexus/postimages`
 - 🗑️ Automatic cleanup of deleted images
 - 🔄 Profile picture updates replace old images
 
@@ -67,8 +67,8 @@ Ensure you have the following installed:
 ### **Clone the Repository**
 
 ```bash
-git clone https://github.com/ItsRudraksh/threadio.git
-cd threadio
+git clone https://github.com/ItsRudraksh/nexus.git
+cd nexus
 ```
 
 ### **Setup Backend**
@@ -76,7 +76,7 @@ cd threadio
 1. **Navigate to Root Directory:**
 
    ```bash
-   cd threadio
+   cd nexus
    ```
 
 2. **Install Dependencies:**

@@ -65,7 +65,7 @@ export const signupUser = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
-      subject: "Verify Your Email - Threadio",
+      subject: "Verify Your Email - Nexus",
       text: `Your verification code is ${otp}. It expires in 10 minutes.`,
     };
 

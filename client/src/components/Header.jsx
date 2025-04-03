@@ -37,7 +37,7 @@ const Header = () => {
           <Tooltip label="Home">
             <Link
               as={RouterLink}
-              to="/">
+              to="/feed">
               <AiFillHome size={24} />
             </Link>
           </Tooltip>
@@ -63,8 +63,9 @@ const Header = () => {
         <Image
           cursor={"pointer"}
           alt="logo"
-          w={6}
-          src={colorMode === "dark" ? "/light-logo.svg" : "/dark-logo.svg"}
+          w={16}
+          objectFit={"cover"}
+          src={colorMode === "dark" ? "/dark-logo.png" : "/dark-logo.png"}
           onClick={toggleColorMode}
         />
       </Tooltip>

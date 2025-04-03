@@ -1,6 +1,6 @@
 import cron from "cron";
 import https from "https";
-const URL = "https://threadio.onrender.com";
+const URL = `${process.env.CLIENT_URL}`;
 
 const job = new cron.CronJob("*/12 * * * *", () => {
   https

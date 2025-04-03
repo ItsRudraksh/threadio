@@ -15,25 +15,43 @@ import FollowersAndFollowing from "./pages/FollowersAndFollowing";
 import SearchPage from "./pages/SearchPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import LandingPage from "./pages/LandingPage";
+
 const App = () => {
   const user = useRecoilValue(userAtom);
   const { pathname } = useLocation();
+  const isLandingPage = pathname === "/";
+
   return (
-    <Box position={"relative"} w="full">
+    <Box
+      position={"relative"}
+      w="full">
       <Container
-        maxW={pathname === "/" ? { base: "620px", md: "900px" } : "620px"}
-      >
-        <Header />
+        maxW={
+          isLandingPage
+            ? "full"
+            : pathname === "/feed"
+            ? { base: "620px", md: "900px" }
+            : "620px"
+        }
+        p={isLandingPage ? 0 : undefined}>
+        {!isLandingPage && <Header />}
         <Routes>
           <Route
             path="/"
+            element={<LandingPage />}
+          />
+          <Route
+            path="/feed"
             element={
               user && !user.frozen ? <HomePage /> : <Navigate to="/auth" />
             }
           />
           <Route
             path="/auth"
-            element={!user || user.frozen ? <AuthPage /> : <Navigate to="/" />}
+            element={
+              !user || user.frozen ? <AuthPage /> : <Navigate to="/feed" />
+            }
           />
           <Route
             path="/update"
@@ -59,7 +77,10 @@ const App = () => {
               )
             }
           />
-          <Route path="/:username/post/:pid" element={<PostPage />} />
+          <Route
+            path="/:username/post/:pid"
+            element={<PostPage />}
+          />
           <Route
             path="/chat"
             element={
@@ -92,8 +113,14 @@ const App = () => {
               user && !user.frozen ? <SearchPage /> : <Navigate to={"/auth"} />
             }
           />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route
+            path="/forgot-password"
+            element={<ForgotPassword />}
+          />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPassword />}
+          />
         </Routes>
       </Container>
     </Box>

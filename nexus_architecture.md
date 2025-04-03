@@ -1,4 +1,4 @@
-# Threadio Architecture Diagram
+# Nexus Architecture Diagram
 
 ```mermaid
 flowchart TD
@@ -276,7 +276,7 @@ sequenceDiagram
 
 ## Architecture Overview
 
-Threadio is built on a MERN stack architecture with integrated AI capabilities:
+Nexus is built on a MERN stack architecture with integrated AI capabilities:
 
 ### Core Components
 
